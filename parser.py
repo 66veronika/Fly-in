@@ -78,10 +78,28 @@ class Parser:
 
     def parse_connection(self, line: str, line_number: int) -> None:
         part = line.split()
+
+        if len(part) < 2:
+            raise ValueError(
+                f"Line {line_number}: Missing connections"
+            )
         splitted_connections = part[1].split("-")
+
+        if len(splitted_connections) != 2:
+            raise ValueError(
+                f"Line {line_number}: connection must have two zones"
+            )
+
         from_zone = splitted_connections[0]
         to_zone = splitted_connections[1]
-        self.data["connections"].append()
+        metadata_arg = " ".join(part[2:])
+        connection_data = {
+            "from": from_zone,
+            "to": to_zone,
+            "metadata": metadata_arg,
+            "line_number": line_number,
+        }
+        self.data["connections"].append(connection_data)
 
 # zone = Zone(
 #             name=part[1],
