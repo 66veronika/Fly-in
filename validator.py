@@ -21,10 +21,44 @@ class Validator:
             raise ValueError(
                 "Number of drones must be a positive integer"
             )
+
     def validate_zones(self) -> None:
         zones = self.data["zones"]
-        name = set()
-        start_hub = 0
-        end_hub = 0
+        names = set()
+        start_hubs = 0
+        end_hubs = 0
 
-        
+        if not zones:
+            raise ValueError(
+                "No zones defined"
+            )
+        for zone in zones:
+            line = zone["line_number"]
+
+            if zone["name"] in names:
+                raise ValueError(
+                    f"Line {line}: duplicate zone name ({zone['name']})"
+                )
+            names.add(zone["name"])
+
+            try:
+                int(zone["x"])
+                int(zone["y"])
+            except ValueError:
+                raise ValueError(
+                    f"Line {line}: zone coordinates must be integers"
+                )
+
+            if zone["type"] == "start_hub":
+                start_hubs += 1
+            elif zone["type"] == "end_hub":
+                end_hubs += 1
+
+        if start_hubs != 1:
+            raise ValueError(
+                f"{line}: there must be only one start_hub"
+            )
+        elif end_hubs != 1:
+            raise ValueError(
+                f"{line}: there must be only one end_hub"
+            )
