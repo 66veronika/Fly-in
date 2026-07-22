@@ -1,10 +1,11 @@
-# from parser import Parser
+from parser import Parser
 
 
 def main():
-    # parser = Parser("maps/example.txt")
-    # parser.parse()
-    int("hfhzdtzdjfofier")
+    parser = Parser("maps/example.txt")
+    slovnik = parser.parse()
+    for v in slovnik.values():
+        print(v)
 
 
 if __name__ == "__main__":

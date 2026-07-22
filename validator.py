@@ -1,4 +1,3 @@
-from parser import Parser
 
 
 class Validator:
@@ -62,3 +61,6 @@ class Validator:
             raise ValueError(
                 f"{line}: there must be only one end_hub"
             )
+        
+    def validate_connections(self) -> None:
+        
