@@ -9,15 +9,16 @@ class Validator:
         self.validate_zones()
         self.validate_connections()
     
-    def validate_nb_drones() -> None:
+    def validate_nb_drones(self) -> None:
         nb_drones = self.data["nb_drones"]
 
-        if nb_drones is None:
+        if not nb_drones:
             raise ValueError(
                 "nb_drones is missing"
             )
-        if nb_drones <= 0:
+        if nb_drones["number"] <= 0:
             raise ValueError(
+                f"Line {nb_drones["line_number"]}: "
                 "Number of drones must be a positive integer"
             )
 
@@ -59,26 +60,25 @@ class Validator:
                 end_hubs += 1
             elif zone["type"] != "hub":
                 raise ValueError(
-                    f"Line {line}: invalid zone type ({zone["type"]})"
+                    f"Line {line}: invalid zone type ({zone['type']})"
                 )
-
         if start_hubs == 0:
             raise ValueError(
                 "Map must contain one start_hub"
             )
-        elif start_hubs > 1:
+        if start_hubs > 1:
             raise ValueError(
-                f"{line}: there must be only one start_hub"
+                "There must be only one start_hub"
             )
         if end_hubs == 0:
             raise ValueError(
                 "Map must contain one end_hub"
             )
-        elif end_hubs > 1:
+        if end_hubs > 1:
             raise ValueError(
-                f"{line}: there must be only one end_hub"
+                "There must be only one end_hub"
             )
-        
+
     def validate_connections(self) -> None:
         zone_names = set()
 
@@ -110,13 +110,20 @@ class Validator:
                 raise ValueError(
                     f"Line {line_number}: a zone cannot connect to itself"
                 )
-            
+                seen_connections = set()
 
+                for connection in self.data["connections"]:
+                    from_zone = connection["from"]
+                    to_zone = connection["to"]
 
-?????????????????
-key = frozenset((conn["from"], conn["to"]))
-            if key in seen:
-                raise ValueError(
-                    f"Line {line}: duplicate connection between '{conn['from']}' and '{conn['to']}'"
-                )
-            seen.add(key)
+                    connection_key = tuple(
+                        sorted([from_zone, to_zone])
+                    )
+
+                    if connection_key in seen_connections:
+                        raise ValueError(
+                            f"Line {line_number}: duplicate conecction"
+                        )
+
+                    seen_connections.add(connection_key)
+        

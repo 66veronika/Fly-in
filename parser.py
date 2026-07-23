@@ -49,7 +49,10 @@ class Parser:
                 f"Line {line_number}: Too many drone arguments"
             )
         try:
-            self.data["nb_drones"] = int(part[1])
+            self.data["nb_drones"] = {
+                "number": int(part[1]),
+                "line_number": line_number
+                }
         except ValueError:
             raise ValueError(
                 f"Line {line_number}: number of drones must be an integer"
@@ -61,6 +64,10 @@ class Parser:
         if len(part) < 4:
             raise ValueError(
                 f"Line {line_number}: Missing zone arguments"
+            )
+        if len(part) > 5:
+            raise ValueError(
+                f"Line {line_number}: Too many zone arguments"
             )
         zone_type = part[0].removesuffix(":")
         metadata_arg = " ".join(part[4:])
