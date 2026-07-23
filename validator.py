@@ -33,16 +33,21 @@ class Validator:
             )
         for zone in zones:
             line = zone["line_number"]
+            name = zone["name"]
 
-            if zone["name"] in names:
+            if not name:
                 raise ValueError(
-                    f"Line {line}: duplicate zone name ({zone['name']})"
+                    f"Line {line}: zone name cannot be empty"
                 )
-            names.add(zone["name"])
+            if name in names:
+                raise ValueError(
+                    f"Line {line}: duplicate zone name ({name})"
+                )
+            names.add(name)
 
             try:
-                int(zone["x"])
-                int(zone["y"])
+                zone["x"] = int(zone["x"])
+                zone["y"] = int(zone["y"])
             except ValueError:
                 raise ValueError(
                     f"Line {line}: zone coordinates must be integers"
@@ -52,15 +57,66 @@ class Validator:
                 start_hubs += 1
             elif zone["type"] == "end_hub":
                 end_hubs += 1
+            elif zone["type"] != "hub":
+                raise ValueError(
+                    f"Line {line}: invalid zone type ({zone["type"]})"
+                )
 
-        if start_hubs != 1:
+        if start_hubs == 0:
+            raise ValueError(
+                "Map must contain one start_hub"
+            )
+        elif start_hubs > 1:
             raise ValueError(
                 f"{line}: there must be only one start_hub"
             )
-        elif end_hubs != 1:
+        if end_hubs == 0:
+            raise ValueError(
+                "Map must contain one end_hub"
+            )
+        elif end_hubs > 1:
             raise ValueError(
                 f"{line}: there must be only one end_hub"
             )
         
     def validate_connections(self) -> None:
-        
+        zone_names = set()
+
+        for zone in self.data["zones"]:
+            zone_names.add(zone["name"])
+
+        for connection in self.data["connections"]:
+            from_zone = connection["from"]
+            to_zone = connection["to"]
+            line_number = connection["line_number"]
+
+            if not from_zone:
+                raise ValueError(
+                    f"Line {line_number}: source zone cannot be empty"
+                )
+            if not to_zone:
+                raise ValueError(
+                    f"Line {line_number}: destination zone cannot be empty"
+                )
+            if from_zone not in zone_names:
+                raise ValueError(
+                    f"Line {line_number}: unknown zone ({from_zone})"
+                )
+            if to_zone not in zone_names:
+                raise ValueError(
+                    f"Line {line_number}: unknown zone ({to_zone})"
+                )
+            if from_zone == to_zone:
+                raise ValueError(
+                    f"Line {line_number}: a zone cannot connect to itself"
+                )
+            
+
+
+?????????????????
+key = frozenset((conn["from"], conn["to"]))
+            if key in seen:
+                raise ValueError(
+                    f"Line {line}: duplicate connection between '{conn['from']}' and '{conn['to']}'"
+                )
+            seen.add(key)

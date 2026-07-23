@@ -101,8 +101,3 @@ class Parser:
         }
         self.data["connections"].append(connection_data)
 
-# zone = Zone(
-#             name=part[1],
-#             x=int(part[2]),
-#             y=int(part[3]),
-#         )
