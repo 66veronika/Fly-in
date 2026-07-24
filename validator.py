@@ -8,7 +8,7 @@ class Validator:
         self.validate_nb_drones()
         self.validate_zones()
         self.validate_connections()
-    
+
     def validate_nb_drones(self) -> None:
         nb_drones = self.data["nb_drones"]
 
@@ -18,7 +18,7 @@ class Validator:
             )
         if nb_drones["number"] <= 0:
             raise ValueError(
-                f"Line {nb_drones["line_number"]}: "
+                f"Line {nb_drones['line_number']}: "
                 "Number of drones must be a positive integer"
             )
 
@@ -68,7 +68,7 @@ class Validator:
             )
         if start_hubs > 1:
             raise ValueError(
-                "There must be only one start_hub"
+                f"Line {line}: There must be only one start_hub"
             )
         if end_hubs == 0:
             raise ValueError(
@@ -76,11 +76,12 @@ class Validator:
             )
         if end_hubs > 1:
             raise ValueError(
-                "There must be only one end_hub"
+                f"Line {line}: There must be only one end_hub"
             )
 
     def validate_connections(self) -> None:
         zone_names = set()
+        seen_connections = set()
 
         for zone in self.data["zones"]:
             zone_names.add(zone["name"])
@@ -110,20 +111,14 @@ class Validator:
                 raise ValueError(
                     f"Line {line_number}: a zone cannot connect to itself"
                 )
-                seen_connections = set()
 
-                for connection in self.data["connections"]:
-                    from_zone = connection["from"]
-                    to_zone = connection["to"]
+            connection_key = tuple(
+                sorted((from_zone, to_zone))
+            )
 
-                    connection_key = tuple(
-                        sorted([from_zone, to_zone])
-                    )
-
-                    if connection_key in seen_connections:
-                        raise ValueError(
-                            f"Line {line_number}: duplicate conecction"
-                        )
-
-                    seen_connections.add(connection_key)
-        
+            if connection_key in seen_connections:
+                raise ValueError(
+                    f"Line {line_number}: duplicate connection "
+                    f"between ({from_zone}) and ({to_zone})"
+                )
+            seen_connections.add(connection_key)
