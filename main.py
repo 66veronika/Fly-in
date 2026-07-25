@@ -4,9 +4,12 @@ from validator import Validator
 
 def main():
     parser = Parser("maps/example.txt")
-    slovnik = parser.parse()
-    validator = Validator(slovnik)
+    data = parser.parse()
+    validator = Validator(data)
     validator.validate()
+    
+    print("\n=== Validated data ===")
+    print(data)
 
 
 if __name__ == "__main__":
