@@ -7,7 +7,7 @@ def main():
     data = parser.parse()
     validator = Validator(data)
     validator.validate()
-    
+
     print("\n=== Validated data ===")
     print(data)
 
