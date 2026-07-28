@@ -2,7 +2,7 @@ from .enums import ZoneType, HubType
 
 
 class Zone:
-    def __init__( 
+    def __init__(
         self,
         name: str,
         x: int,
@@ -76,5 +76,3 @@ class Zone:
             )
 
         self.occupants.remove(drone_id)
-
-    
