@@ -10,7 +10,9 @@ class Zone:
         hub_type: HubType,
         zone_type: ZoneType = ZoneType.NORMAL,
         color: str = "none",
-        max_drones: int = 1
+        max_drones: int = 1,
+        is_start: bool = False,
+        is_end: bool = False,
     ) -> None:
         self.name = name
         self.x = x
@@ -19,14 +21,18 @@ class Zone:
         self.zone_type = zone_type
         self.color = color
         self.max_drones = max_drones
+        self.is_start = is_start
+        self.is_end = is_end
 
         # drones in currect zone
         self.occupants: set[int] = set()
 
+    # ?????????????
     @property
     def is_start(self) -> bool:
         return self.hub_type == HubType.START
 
+    # ?????????????
     @property
     def is_end(self) -> bool:
         return self.hub_type == HubType.END
@@ -46,3 +52,29 @@ class Zone:
 
     def is_accessible(self) -> bool:
         return self.zone_type != ZoneType.BLOCKED
+
+    def add_drone(self, drone_id: int) -> None:
+        """Adds a drone to the zone"""
+
+        if drone_id in self.occupants:
+            raise ValueError(
+                f"Drone {drone_id} is already inside zone '{self.name}'"
+            )
+
+        if not self.has_capacity():
+            raise ValueError(
+                f"Zone '{self.name}' has reached its capacity"
+            )
+
+        self.occupants.add(drone_id)
+
+    def remove_drone(self, drone_id: int) -> None:
+        """Removes a drone fron a zone"""
+        if drone_id not in self.occupants:
+            raise ValueError(
+                f"Drone {drone_id} is not in zone '{self.name}'"
+            )
+
+        self.occupants.remove(drone_id)
+
+    
