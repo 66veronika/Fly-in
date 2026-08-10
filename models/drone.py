@@ -1,4 +1,4 @@
-from .connection import Connection
+from models.connection import Connection
 
 
 class Drone:
@@ -86,3 +86,22 @@ class Drone:
         self.turns_remaining = 0
 
         return True
+
+    def __repr__(self) -> str:
+        if self.is_in_transit:
+            return (
+                "Drone("
+                f"id={self.drone_id}, "
+                f"source={self.current_zone!r}, "
+                f"destination={self.destination_zone!r}, "
+                f"turns_remaining={self.turns_remaining}"
+                ")"
+            )
+
+        return (
+            "Drone("
+            f"id={self.drone_id}, "
+            f"current_zone={self.current_zone!r}"
+            ")"
+        )
+

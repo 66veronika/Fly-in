@@ -11,8 +11,6 @@ class Zone:
         zone_type: ZoneType = ZoneType.NORMAL,
         color: str = "none",
         max_drones: int = 1,
-        is_start: bool = False,
-        is_end: bool = False,
     ) -> None:
         self.name = name
         self.x = x
@@ -21,18 +19,14 @@ class Zone:
         self.zone_type = zone_type
         self.color = color
         self.max_drones = max_drones
-        self.is_start = is_start
-        self.is_end = is_end
 
         # drones in currect zone
         self.occupants: set[int] = set()
 
-    # ?????????????
     @property
     def is_start(self) -> bool:
         return self.hub_type == HubType.START
 
-    # ?????????????
     @property
     def is_end(self) -> bool:
         return self.hub_type == HubType.END
@@ -76,3 +70,13 @@ class Zone:
             )
 
         self.occupants.remove(drone_id)
+
+    def __repr__(self) -> str:
+        return (
+            "Zone("
+            f"name={self.name!r}, "
+            f"hub_type={self.hub_type.value!r}, "
+            f"zone_type={self.zone_type.value!r}, "
+            f"occupants={len(self.occupants)}/{self.max_drones}"
+            ")"
+        )
