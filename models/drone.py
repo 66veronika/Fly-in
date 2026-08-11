@@ -104,4 +104,3 @@ class Drone:
             f"current_zone={self.current_zone!r}"
             ")"
         )
-
