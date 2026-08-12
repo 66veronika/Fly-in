@@ -1,0 +1,27 @@
+# Test map: BFS vs Dijkstra
+
+nb_drones: 1
+
+start_hub: start 0 0 [max_drones=1]
+
+# Short route, but expensive because of restricted zones
+hub: short1 1 0 [zone=restricted color=red]
+hub: short2 2 0 [zone=restricted color=red]
+
+# Longer route, but every zone is normal
+hub: long1 1 1 [color=blue]
+hub: long2 2 1 [color=blue]
+hub: long3 3 1 [color=blue]
+
+end_hub: goal 4 0 [max_drones=1]
+
+# Short expensive path
+connection: start-short1
+connection: short1-short2
+connection: short2-goal
+
+# Longer cheap path
+connection: start-long1
+connection: long1-long2
+connection: long2-long3
+connection: long3-goal

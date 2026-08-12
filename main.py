@@ -1,11 +1,11 @@
 from builder import NetworkBuilder
 from parser import Parser
 from validator import Validator
-from pathfinder_dik import Pathfinder
+from pathfinder import Pathfinder
 
 
 def main() -> None:
-    parser = Parser("maps/example.txt")
+    parser = Parser("maps/test.txt")
     data = parser.parse()
 
     validator = Validator(data)
