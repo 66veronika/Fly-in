@@ -1,0 +1,80 @@
+from models.drone import Drone
+from models.network import Network
+
+
+class Simulator:
+    def __init__(
+        self,
+        network: Network,
+        path: list[str]
+    ) -> None:
+
+        self.network = network
+        self.path = path
+        self.drones: list[Drone] = []
+
+        self.create_drones()
+
+    def create_drones(self) -> None:
+        start = self.network.get_start_zone()
+
+        for drone_id in range(self.network.nb_drones):
+            drone = Drone(
+                drone_id=drone_id,
+                current_zone=start.name,
+            )
+
+            self.drones.append(drone)
+            start.occupants.add(drone_id)
+
+    def get_next_zone(self, drone: Drone) -> str | None:
+        if drone.current_zone == self.path[-1]:
+            return None
+
+        current_index = self.path.index(
+            drone.current_zone
+        )
+
+        return self.path[current_index + 1]
+
+    def start_move(self, drone: Drone) -> bool:
+        if drone.is_in_transit:
+            return False
+
+        next_zone_name = self.get_next_zone(drone)
+        if next_zone_name is None:
+            return False
+
+        destination = self.network.get_zone(next_zone_name)
+        if not destination.has_capacity():
+            return False
+        if not destination.is_accessible():
+            return False
+
+        connection = self.network.get_connection(
+            drone.current_zone,
+            next_zone_name,
+        )
+        if connection is None:
+            raise ValueError(
+                "Path contains zones that are not connected"
+            )
+        if not connection.has_capacity():
+            return False
+
+        source = self.network.get_zone(
+            drone.current_zone
+        )
+        source.remove_drone(drone.drone_id)
+        connection.add_drone(drone.drone_id)
+
+        drone.start_transit(
+            connection,
+            next_zone_name,
+            destination.movement_cost(),
+        )
+
+        return True
+
+    def advance_move(self, drone: Drone) -> bool:
+        

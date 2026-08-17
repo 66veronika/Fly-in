@@ -1,6 +1,6 @@
 # Test map: BFS vs Dijkstra
 
-nb_drones: 1
+nb_drones: 2
 
 start_hub: start 0 0 [max_drones=1]
 
