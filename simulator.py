@@ -77,4 +77,18 @@ class Simulator:
         return True
 
     def advance_move(self, drone: Drone) -> bool:
-        
+        if not drone.is_in_transit:
+            return False
+
+        connection = drone.in_transit_connection
+        destination_name = drone.destination_zone
+
+        arrived = drone.advance_transit()
+        if not arrived:
+            return False
+        connection.remove_drone(drone.drone_id)
+
+        destination = self.network.get_zone(destination_name)
+        destination.add_drone(drone.drone_id)
+
+        return True
