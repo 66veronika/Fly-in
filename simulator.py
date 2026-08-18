@@ -92,3 +92,19 @@ class Simulator:
         destination.add_drone(drone.drone_id)
 
         return True
+
+    def simulate_turn(self) -> None:
+        arrived_this_turn: set[int] = set()
+        for drone in self.drones:
+            if drone.is_in_transit:
+                arrived = self.advance_move(drone)
+
+                if arrived:
+                    arrived_this_turn.add(drone.drone_id)
+
+        for drone in self.drones:
+            if drone.drone_id in arrived_this_turn:
+                continue
+
+            if not drone.is_in_transit:
+                self.start_move(drone)

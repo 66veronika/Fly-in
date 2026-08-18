@@ -23,41 +23,46 @@ def main() -> None:
 
     simulator = Simulator(network, path)
 
-    drone = simulator.drones[0]
+    print("\n=== INITIAL ===")
+    for drone in simulator.drones:
+        print(drone)
 
-    print("\n=== Initial state ===")
-    print(drone)
-    print("Start occupants:", network.get_start_zone().occupants)
+    print("start:", network.get_zone("start").occupants)
+    print("middle:", network.get_zone("middle").occupants)
+    print("goal:", network.get_zone("goal").occupants)
 
-    next_zone_name = simulator.get_next_zone(drone)
 
-    connection = network.get_connection(
-        drone.current_zone,
-        next_zone_name,
-    )
+    print("\n=== TURN 1 ===")
+    simulator.simulate_turn()
 
-    destination = network.get_zone(next_zone_name)
+    for drone in simulator.drones:
+        print(drone)
 
-    print("Connection occupants:", connection.occupants)
-    print("Destination occupants:", destination.occupants)
+    print("start:", network.get_zone("start").occupants)
+    print("middle:", network.get_zone("middle").occupants)
+    print("goal:", network.get_zone("goal").occupants)
 
-    moved = simulator.start_move(drone)
 
-    print("\n=== After start_move ===")
-    print("Started move:", moved)
-    print(drone)
-    print("Start occupants:", network.get_start_zone().occupants)
-    print("Connection occupants:", connection.occupants)
-    print("Destination occupants:", destination.occupants)
+    print("\n=== TURN 2 ===")
+    simulator.simulate_turn()
 
-    arrived = simulator.advance_move(drone)
+    for drone in simulator.drones:
+        print(drone)
 
-    print("\n=== After advance_move ===")
-    print("Arrived:", arrived)
-    print(drone)
-    print("Start occupants:", network.get_start_zone().occupants)
-    print("Connection occupants:", connection.occupants)
-    print("Destination occupants:", destination.occupants)
+    print("start:", network.get_zone("start").occupants)
+    print("middle:", network.get_zone("middle").occupants)
+    print("goal:", network.get_zone("goal").occupants)
+
+
+    print("\n=== TURN 3 ===")
+    simulator.simulate_turn()
+
+    for drone in simulator.drones:
+        print(drone)
+
+    print("start:", network.get_zone("start").occupants)
+    print("middle:", network.get_zone("middle").occupants)
+    print("goal:", network.get_zone("goal").occupants)
 
 if __name__ == "__main__":
     main()
