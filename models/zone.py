@@ -22,6 +22,7 @@ class Zone:
 
         # drones in currect zone
         self.occupants: set[int] = set()
+        self.reservations: set[int] = set()
 
     @property
     def is_start(self) -> bool:
@@ -36,7 +37,11 @@ class Zone:
         if self.is_end:
             return True
 
-        return len(self.occupants) < self.max_drones
+        return (
+            len(self.occupants)
+            + len(self.reservations)
+            < self.max_drones
+        )
 
     def movement_cost(self) -> int:
         """Cost in turns to move into this zone."""
@@ -70,6 +75,29 @@ class Zone:
             )
 
         self.occupants.remove(drone_id)
+    
+    def reserve(self, drone_id: int) -> None:
+        if drone_id in self.reservations:
+            raise ValueError(
+                f"Drone {drone_id} already has a reservation "
+                f"in zone '{self.name}'"
+            )
+            
+        if not self.has_capacity():
+            raise ValueError(
+                f"Zone '{self.name}' has no capacity to reserve"
+            )
+
+        self.reservations.add(drone_id)
+
+    def remove_reservation(self, drone_id: int) -> None:
+        if drone_id not in self.reservations:
+            raise ValueError(
+                f"Drone {drone_id} has no reservation "
+                f"in zone '{self.name}'"
+            )
+
+        self.reservations.remove(drone_id)
 
     def __repr__(self) -> str:
         return (

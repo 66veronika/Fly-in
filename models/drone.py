@@ -6,9 +6,11 @@ class Drone:
             self,
             drone_id: int,
             current_zone: str,
+            path: list[str],
     ) -> None:
         self.drone_id = drone_id
         self.current_zone = current_zone
+        self.path = path
 
         self.in_transit_connection: Connection | None = None
         self.destination_zone: str | None = None

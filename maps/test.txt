@@ -1,8 +1,18 @@
 nb_drones: 2
 
-start_hub: start 0 0 [max_drones=1]
-hub: middle 1 0 [max_drones=1]
-end_hub: goal 2 0
+start_hub: start 0 0 [max_drones=2]
 
-connection: start-middle [max_link_capacity=1]
-connection: middle-goal [max_link_capacity=1]
+hub: left 1 0
+hub: right 1 1
+
+hub: merge 2 0 [max_drones=1]
+
+end_hub: goal 3 0
+
+connection: start-left
+connection: start-right
+
+connection: left-merge
+connection: right-merge
+
+connection: merge-goal

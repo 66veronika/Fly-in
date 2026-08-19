@@ -16,53 +16,27 @@ def main() -> None:
     network = builder.build()
 
     pathfinder = Pathfinder(network)
-    path = pathfinder.find_path()
 
-    print("\n=== Path ===")
+    paths = pathfinder.find_all_paths()
+
+    if not paths:
+        raise RuntimeError("No path from start to goal")
+
+    print("\n=== All Paths ===")
+
+    for path in paths:
+        print(
+            path,
+            "cost:",
+            pathfinder.path_cost(path),
+        )
+
+    path = paths[0]
+
+    print("\n=== Chosen Path ===")
     print(path)
 
     simulator = Simulator(network, path)
-
-    print("\n=== INITIAL ===")
-    for drone in simulator.drones:
-        print(drone)
-
-    print("start:", network.get_zone("start").occupants)
-    print("middle:", network.get_zone("middle").occupants)
-    print("goal:", network.get_zone("goal").occupants)
-
-
-    print("\n=== TURN 1 ===")
-    simulator.simulate_turn()
-
-    for drone in simulator.drones:
-        print(drone)
-
-    print("start:", network.get_zone("start").occupants)
-    print("middle:", network.get_zone("middle").occupants)
-    print("goal:", network.get_zone("goal").occupants)
-
-
-    print("\n=== TURN 2 ===")
-    simulator.simulate_turn()
-
-    for drone in simulator.drones:
-        print(drone)
-
-    print("start:", network.get_zone("start").occupants)
-    print("middle:", network.get_zone("middle").occupants)
-    print("goal:", network.get_zone("goal").occupants)
-
-
-    print("\n=== TURN 3 ===")
-    simulator.simulate_turn()
-
-    for drone in simulator.drones:
-        print(drone)
-
-    print("start:", network.get_zone("start").occupants)
-    print("middle:", network.get_zone("middle").occupants)
-    print("goal:", network.get_zone("goal").occupants)
 
 if __name__ == "__main__":
     main()
