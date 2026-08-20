@@ -65,6 +65,44 @@ class Pathfinder:
 
             path.pop()
             visited.remove(neighbor)
+    
+    def assign_paths(
+        self,
+        paths: list[list[str]],
+        nb_drones: int,
+    ) -> list[list[str]]:
+
+        if not paths:
+            raise RuntimeError(
+                "Cannot assign drones: no paths available"
+            )
+
+        assigned_counts = [0] * len(paths)
+        assignments: list[list[str]] = []
+
+        for _ in range(nb_drones):
+            best_index = 0
+            best_score = (
+                self.path_cost(paths[0])
+                + assigned_counts[0]
+            )
+
+            for index in range(1, len(paths)):
+                score = (
+                    self.path_cost(paths[index])
+                    + assigned_counts[index]
+                )
+
+                if score < best_score:
+                    best_score = score
+                    best_index = index
+
+            assignments.append(paths[best_index])
+            assigned_counts[best_index] += 1
+
+        return assignments
+
+
     # def find_path(self) -> list[str]:
     #     start = self.network.get_start_zone().name
     #     end = self.network.get_end_zone().name

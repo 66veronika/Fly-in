@@ -19,24 +19,30 @@ def main() -> None:
 
     paths = pathfinder.find_all_paths()
 
-    if not paths:
-        raise RuntimeError("No path from start to goal")
+    assignments = pathfinder.assign_paths(
+        paths,
+        network.nb_drones,
+    )
 
-    print("\n=== All Paths ===")
+    print("\n=== Assignments ===")
 
-    for path in paths:
+    for drone_id, path in enumerate(assignments):
         print(
-            path,
-            "cost:",
-            pathfinder.path_cost(path),
+            f"Drone {drone_id}: "
+            f"{path} "
+            f"cost={pathfinder.path_cost(path)}"
         )
 
-    path = paths[0]
+    simulator = Simulator(network, assignments)
 
-    print("\n=== Chosen Path ===")
-    print(path)
+    print("\n=== Drone Paths ===")
 
-    simulator = Simulator(network, path)
+    for drone in simulator.drones:
+        print(
+            f"Drone {drone.drone_id}: "
+            f"{drone.path}"
+        )
+    simulator.run()
 
 if __name__ == "__main__":
     main()

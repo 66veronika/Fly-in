@@ -6,11 +6,15 @@ class Simulator:
     def __init__(
         self,
         network: Network,
-        path: list[str]
+        assignments: list[list[str]]
     ) -> None:
-
+        if len(assignments) != network.nb_drones:
+            raise ValueError(
+                "Number of path assignments must match number of drones"
+            )
+            
         self.network = network
-        self.path = path
+        self.assignments = assignments
         self.drones: list[Drone] = []
 
         self.create_drones()
@@ -19,10 +23,12 @@ class Simulator:
         start = self.network.get_start_zone()
 
         for drone_id in range(self.network.nb_drones):
+            drone_path = self.assignments[drone_id]
+
             drone = Drone(
                 drone_id=drone_id,
                 current_zone=start.name,
-                path=self.path,
+                path=drone_path
             )
 
             self.drones.append(drone)
