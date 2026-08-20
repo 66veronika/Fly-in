@@ -3,16 +3,14 @@ nb_drones: 6
 start_hub: start 0 0
 end_hub: goal 4 0
 
-hub: cheap1 1 1
-hub: cheap2 2 1
+hub: left 1 1 [max_drones=3]
+hub: right 1 -1 [max_drones=3]
+hub: merge 2 0 [max_drones=1]
 
-hub: expensive1 1 -1 [zone=restricted]
-hub: expensive2 2 -1 [zone=restricted]
+connection: start-left [max_link_capacity=3]
+connection: left-merge [max_link_capacity=3]
 
-connection: start-cheap1
-connection: cheap1-cheap2
-connection: cheap2-goal
+connection: start-right [max_link_capacity=3]
+connection: right-merge [max_link_capacity=3]
 
-connection: start-expensive1
-connection: expensive1-expensive2
-connection: expensive2-goal
+connection: merge-goal [max_link_capacity=1]

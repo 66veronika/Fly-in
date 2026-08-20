@@ -12,7 +12,7 @@ class Simulator:
             raise ValueError(
                 "Number of path assignments must match number of drones"
             )
-            
+
         self.network = network
         self.assignments = assignments
         self.drones: list[Drone] = []

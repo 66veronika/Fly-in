@@ -32,6 +32,13 @@ def main() -> None:
             f"{path} "
             f"cost={pathfinder.path_cost(path)}"
         )
+        print(
+            path,
+            "cost=",
+            pathfinder.path_cost(path),
+            "capacity=",
+            pathfinder.path_bottleneck_capacity(path),
+        )
 
     simulator = Simulator(network, assignments)
 
@@ -44,5 +51,11 @@ def main() -> None:
         )
     simulator.run()
 
+
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except ValueError as e:
+        print(e)
+    except KeyboardInterrupt:
+        print("\nInterrupted")

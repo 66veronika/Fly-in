@@ -65,7 +65,7 @@ class Pathfinder:
 
             path.pop()
             visited.remove(neighbor)
-    
+
     def assign_paths(
         self,
         paths: list[list[str]],
@@ -77,31 +77,136 @@ class Pathfinder:
                 "Cannot assign drones: no paths available"
             )
 
-        assigned_counts = [0] * len(paths)
         assignments: list[list[str]] = []
+
+        zone_loads: dict[str, int] = {
+            zone_name: 0
+            for zone_name in self.network.zones
+        }
+
+        connection_loads: dict[tuple[str, str], int] = {}
+
+        for connection in self.network.connections:
+            key = tuple(sorted((
+                connection.zone_a,
+                connection.zone_b,
+            )))
+            connection_loads[key] = 0
 
         for _ in range(nb_drones):
             best_index = 0
+
             best_score = (
                 self.path_cost(paths[0])
-                + assigned_counts[0]
+                + self.path_congestion(
+                    paths[0],
+                    zone_loads,
+                    connection_loads,
+                )
             )
 
             for index in range(1, len(paths)):
                 score = (
                     self.path_cost(paths[index])
-                    + assigned_counts[index]
+                    + self.path_congestion(
+                        paths[index],
+                        zone_loads,
+                        connection_loads,
+                    )
                 )
 
                 if score < best_score:
                     best_score = score
                     best_index = index
 
-            assignments.append(paths[best_index])
-            assigned_counts[best_index] += 1
+            chosen_path = paths[best_index]
+            assignments.append(chosen_path)
+
+            for zone_name in chosen_path[1:-1]:
+                zone_loads[zone_name] += 1
+
+            for index in range(len(chosen_path) - 1):
+                key = tuple(sorted((
+                    chosen_path[index],
+                    chosen_path[index + 1],
+                )))
+                connection_loads[key] += 1
 
         return assignments
 
+    def path_congestion(
+        self,
+        path: list[str],
+        zone_loads: dict[str, int],
+        connection_loads: dict[tuple[str, str], int],
+    ) -> float:
+        worst_congestion = 0.0
+
+        for zone_name in path[1:-1]:
+            zone = self.network.get_zone(zone_name)
+
+            congestion = (
+                zone_loads[zone_name] + 1
+            ) / zone.max_drones
+
+            worst_congestion = max(
+                worst_congestion,
+                congestion,
+            )
+
+        for index in range(len(path) - 1):
+            zone_a = path[index]
+            zone_b = path[index + 1]
+
+            connection = self.network.get_connection(
+                zone_a,
+                zone_b,
+            )
+
+            if connection is None:
+                raise RuntimeError(
+                    "Path contains zones that are not connected"
+                )
+
+            key = tuple(sorted((zone_a, zone_b)))
+
+            congestion = (
+                connection_loads[key] + 1
+            ) / connection.max_link_capacity
+
+            worst_congestion = max(
+                worst_congestion,
+                congestion,
+            )
+
+        return worst_congestion
+
+    def path_bottleneck_capacity(
+        self,
+        path: list[str],
+    ) -> int:
+        capacities: list[int] = []
+
+        for index in range(len(path) - 1):
+            connection = self.network.get_connection(
+                path[index],
+                path[index + 1],
+            )
+
+            if connection is None:
+                raise RuntimeError(
+                    "Path contains zones that are not connected"
+                )
+
+            capacities.append(
+                connection.max_link_capacity
+            )
+
+        for zone_name in path[1:-1]:
+            zone = self.network.get_zone(zone_name)
+            capacities.append(zone.max_drones)
+
+        return min(capacities)
 
     # def find_path(self) -> list[str]:
     #     start = self.network.get_start_zone().name
