@@ -1,16 +1,12 @@
-nb_drones: 6
+nb_drones: 3
 
-start_hub: start 0 0
-end_hub: goal 4 0
+start_hub: start 0 0 [max_drones=1]
+hub: normalway 1 1
+hub: priorityway 1 -1 [zone=priority]
+end_hub: goal 2 0
 
-hub: left 1 1 [max_drones=3]
-hub: right 1 -1 [max_drones=3]
-hub: merge 2 0 [max_drones=1]
+connection: start-normalway
+connection: normalway-goal
 
-connection: start-left [max_link_capacity=3]
-connection: left-merge [max_link_capacity=3]
-
-connection: start-right [max_link_capacity=3]
-connection: right-merge [max_link_capacity=3]
-
-connection: merge-goal [max_link_capacity=1]
+connection: start-priorityway
+connection: priorityway-goal

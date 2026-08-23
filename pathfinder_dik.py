@@ -1,327 +1,223 @@
 import heapq
 
+from models.enums import ZoneType
 from models.network import Network
+from models.zone import Zone
+from reservation import ReservationTable
 
+# A "state" in the search is (zone_name, turn).
+# A schedule is the list of states a single drone passes through.
+Schedule = list[tuple[str, int]]
 
 class Pathfinder:
     def __init__(self, network: Network) -> None:
         self.network = network
 
-    def path_cost(self, path: list[str]) -> int:
-        cost = 0
+    def _effective_capacity(self, zone: Zone) -> int | float:
+        """Start and end zones are occupancy exceptions per spec:
+        unlimited drones may be present simultaneously."""
+        if zone.is_start or zone.is_end:
+            return float("inf")
+        return zone.max_drones
 
-        for zone_name in path[1:]:
-            zone = self.network.get_zone(zone_name)
-            cost += zone.movement_cost()
+    def find_path_with_reservations(
+        self,
+        reservations: ReservationTable,
+        start: str,
+        end: str,
+        start_turn: int = 0,
+        max_turn: int = 500,
+    ) -> Schedule:
+        start_state = (start, start_turn)
 
-        return cost
-
-    def find_path(self) -> list[str]:
-        """
-        Find the cheapest path from start to end using Dijkstra.
-        """
-
-        start = self.network.get_start_zone().name
-        end = self.network.get_end_zone().name
-
-        distances: dict[str, float] = {
-            zone_name: float("inf")
-            for zone_name in self.network.zones
+        # (travel cost, negative priority count)
+        best_rank: dict[
+            tuple[str, int],
+            tuple[int, int],
+        ] = {
+            start_state: (0, 0)
         }
 
-        previous: dict[str, str | None] = {
-            start: None
-        }
+        previous: dict[
+            tuple[str, int],
+            tuple[str, int],
+        ] = {}
 
-        distances[start] = 0
-
-        queue: list[tuple[float, str]] = [
-            (0, start)
+        queue: list[
+            tuple[int, int, str, int]
+        ] = [
+            (0, 0, start, start_turn)
         ]
 
         while queue:
-            current_distance, current = heapq.heappop(
-                queue
+            cost, negative_priority, zone_name, turn = (
+                heapq.heappop(queue)
             )
 
-            if current == end:
-                break
+            state = (zone_name, turn)
 
-            if current_distance > distances[current]:
+            current_rank = (
+                cost,
+                negative_priority,
+            )
+
+            known_rank = best_rank.get(state)
+
+            if (
+                known_rank is not None
+                and current_rank > known_rank
+            ):
+                continue
+            if zone_name == end:
+                return self._reconstruct(previous, state)
+            if turn >= max_turn:
                 continue
 
-            for neighbor_name in self.network.neighbors(
-                current,
-                accessible_only=True,
+            zone = self.network.get_zone(zone_name)
+            zone_capacity = self._effective_capacity(zone)
+
+            # --- wait in place ---
+            wait_turn = turn + 1
+
+            if reservations.zone_free(
+                zone_name,
+                zone_capacity,
+                wait_turn,
             ):
-                neighbor = self.network.get_zone(
-                    neighbor_name
+                wait_state = (
+                    zone_name,
+                    wait_turn,
                 )
 
-                new_distance = (
-                    current_distance
-                    + neighbor.movement_cost()
+                new_cost = cost + 1
+
+                new_rank = (
+                    new_cost,
+                    negative_priority,
                 )
 
-                if new_distance < distances[neighbor_name]:
-                    distances[neighbor_name] = new_distance
-                    previous[neighbor_name] = current
+                if new_rank < best_rank.get(
+                    wait_state,
+                    (float("inf"), 0),
+                ):
+                    best_rank[wait_state] = new_rank
+                    previous[wait_state] = state
 
                     heapq.heappush(
                         queue,
                         (
-                            new_distance,
+                            new_cost,
+                            negative_priority,
+                            zone_name,
+                            wait_turn,
+                        ),
+                    )
+            # --- move to a neighbor ---
+            for neighbor_name in self.network.neighbors(zone_name, accessible_only=True):
+                neighbor = self.network.get_zone(neighbor_name)
+                new_negative_priority = negative_priority
+
+                if neighbor.zone_type == ZoneType.PRIORITY:
+                    new_negative_priority -= 1
+                neighbor_capacity = self._effective_capacity(neighbor)
+                connection = self.network.get_connection(zone_name, neighbor_name)
+                if connection is None:
+                    continue
+
+                duration = neighbor.movement_cost()
+                arrival_turn = turn + duration
+
+                if not reservations.connection_free(
+                    zone_name,
+                    neighbor_name,
+                    connection.max_link_capacity,
+                    turn,
+                    arrival_turn,
+                ):
+                    continue
+                if not reservations.zone_free(neighbor_name, neighbor_capacity, arrival_turn):
+                    continue
+
+                new_state = (
+                    neighbor_name,
+                    arrival_turn,
+                )
+
+                new_cost = cost + duration
+
+                new_rank = (
+                    new_cost,
+                    new_negative_priority,
+                )
+                if new_rank < best_rank.get(
+                    new_state,
+                    (float("inf"), 0),
+                ):
+                    best_rank[new_state] = new_rank
+                    previous[new_state] = state
+
+                    heapq.heappush(
+                        queue,
+                        (
+                            new_cost,
+                            new_negative_priority,
                             neighbor_name,
+                            arrival_turn,
                         ),
                     )
 
-        if distances[end] == float("inf"):
-            return []
+        return []
 
-        path: list[str] = []
-        current: str | None = end
+    def _reconstruct(
+        self,
+        previous: dict[
+            tuple[str, int],
+            tuple[str, int],
+        ],
+        end_state: tuple[str, int],
+    ) -> Schedule:
+        path = [end_state]
 
-        while current is not None:
-            path.append(current)
-            current = previous[current]
+        while path[-1] in previous:
+            path.append(
+                previous[path[-1]]
+            )
 
         path.reverse()
 
         return path
 
-    def find_all_paths(self) -> list[list[str]]:
-        """
-        Find every simple accessible path from start to end.
-        """
-
+    def plan_all_drones(self, nb_drones: int, max_turn: int = 500) -> list[Schedule]:
+        reservations = ReservationTable()
         start = self.network.get_start_zone().name
         end = self.network.get_end_zone().name
 
-        paths: list[list[str]] = []
-
-        self._search_paths(
-            current=start,
-            end=end,
-            path=[start],
-            visited={start},
-            paths=paths,
-        )
-
-        paths.sort(key=self.path_cost)
-
-        return paths
-
-    def _search_paths(
-        self,
-        current: str,
-        end: str,
-        path: list[str],
-        visited: set[str],
-        paths: list[list[str]],
-    ) -> None:
-        if current == end:
-            paths.append(path.copy())
-            return
-
-        for neighbor in self.network.neighbors(
-            current,
-            accessible_only=True,
-        ):
-            if neighbor in visited:
-                continue
-
-            visited.add(neighbor)
-            path.append(neighbor)
-
-            self._search_paths(
-                current=neighbor,
-                end=end,
-                path=path,
-                visited=visited,
-                paths=paths,
+        schedules: list[Schedule] = []
+        for drone_id in range(nb_drones):
+            schedule = self.find_path_with_reservations(
+                reservations, start, end, start_turn=0, max_turn=max_turn
             )
-
-            path.pop()
-            visited.remove(neighbor)
-
-    def path_bottleneck_capacity(
-        self,
-        path: list[str],
-    ) -> int:
-        """
-        Return the smallest zone/link capacity
-        found along the path.
-        """
-
-        capacities: list[int] = []
-
-        for index in range(len(path) - 1):
-            connection = self.network.get_connection(
-                path[index],
-                path[index + 1],
-            )
-
-            if connection is None:
+            if not schedule:
                 raise RuntimeError(
-                    "Path contains zones that are not connected"
+                    f"No feasible path found for drone {drone_id} within {max_turn} turns"
                 )
+            self._commit_schedule(reservations, schedule)
+            schedules.append(schedule)
+        return schedules
 
-            capacities.append(
-                connection.max_link_capacity
-            )
-
-        # Do not include start/end zone capacities.
-        for zone_name in path[1:-1]:
-            zone = self.network.get_zone(zone_name)
-            capacities.append(zone.max_drones)
-
-        if not capacities:
-            raise RuntimeError(
-                "Cannot calculate capacity for an empty path"
-            )
-
-        return min(capacities)
-
-    def path_congestion(
-        self,
-        path: list[str],
-        zone_loads: dict[str, int],
-        connection_loads: dict[
-            tuple[str, str],
-            int,
-        ],
-    ) -> float:
-        """
-        Estimate the worst congestion that would result
-        from assigning one more drone to this path.
-        """
-
-        worst_congestion = 0.0
-
-        # Intermediate zones.
-        for zone_name in path[1:-1]:
-            zone = self.network.get_zone(zone_name)
-
-            congestion = (
-                zone_loads[zone_name] + 1
-            ) / zone.max_drones
-
-            worst_congestion = max(
-                worst_congestion,
-                congestion,
-            )
-
-        # Connections.
-        for index in range(len(path) - 1):
-            zone_a = path[index]
-            zone_b = path[index + 1]
-
-            connection = self.network.get_connection(
-                zone_a,
-                zone_b,
-            )
-
-            if connection is None:
-                raise RuntimeError(
-                    "Path contains zones that are not connected"
+    def _commit_schedule(self, reservations: ReservationTable, schedule: Schedule) -> None:
+        first_zone, first_turn = schedule[0]
+        reservations.reserve_zone(first_zone, first_turn)
+        for i in range(len(schedule) - 1):
+            zone_a, turn_a = schedule[i]
+            zone_b, turn_b = schedule[i + 1]
+            if zone_a == zone_b:
+                reservations.reserve_zone(zone_b, turn_b)
+            else:
+                reservations.reserve_connection(
+                    zone_a,
+                    zone_b,
+                    turn_a,
+                    turn_b,
                 )
-
-            key = tuple(sorted((
-                zone_a,
-                zone_b,
-            )))
-
-            congestion = (
-                connection_loads[key] + 1
-            ) / connection.max_link_capacity
-
-            worst_congestion = max(
-                worst_congestion,
-                congestion,
-            )
-
-        return worst_congestion
-
-    def assign_paths(
-        self,
-        paths: list[list[str]],
-        nb_drones: int,
-    ) -> list[list[str]]:
-        """
-        Greedily assign one path to every drone.
-
-        The score considers:
-        - movement cost
-        - planned zone congestion
-        - planned connection congestion
-        """
-
-        if not paths:
-            raise RuntimeError(
-                "Cannot assign drones: no paths available"
-            )
-
-        assignments: list[list[str]] = []
-
-        zone_loads: dict[str, int] = {
-            zone_name: 0
-            for zone_name in self.network.zones
-        }
-
-        connection_loads: dict[
-            tuple[str, str],
-            int,
-        ] = {}
-
-        for connection in self.network.connections:
-            key = tuple(sorted((
-                connection.zone_a,
-                connection.zone_b,
-            )))
-
-            connection_loads[key] = 0
-
-        path_costs = [
-            self.path_cost(path)
-            for path in paths
-        ]
-
-        for _ in range(nb_drones):
-            best_index = 0
-            best_score = float("inf")
-
-            for index, path in enumerate(paths):
-                congestion = self.path_congestion(
-                    path,
-                    zone_loads,
-                    connection_loads,
-                )
-
-                score = (
-                    path_costs[index]
-                    + congestion
-                )
-
-                if score < best_score:
-                    best_score = score
-                    best_index = index
-
-            chosen_path = paths[best_index]
-            assignments.append(chosen_path)
-
-            # Record planned use of intermediate zones.
-            for zone_name in chosen_path[1:-1]:
-                zone_loads[zone_name] += 1
-
-            # Record planned use of connections.
-            for index in range(
-                len(chosen_path) - 1
-            ):
-                key = tuple(sorted((
-                    chosen_path[index],
-                    chosen_path[index + 1],
-                )))
-
-                connection_loads[key] += 1
-
-        return assignments
+                reservations.reserve_zone(zone_b, turn_b)
