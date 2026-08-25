@@ -5,6 +5,7 @@ from parser import Parser
 from pathfinder_dik import Pathfinder
 from simulator import Simulator
 from validator import Validator
+from renderer import Renderer
 
 
 def main() -> None:
@@ -35,6 +36,8 @@ def main() -> None:
     )
 
     simulator.run()
+    Renderer(network, schedules)
+    arcade.run() 
 
 
 if __name__ == "__main__":
