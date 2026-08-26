@@ -1,4 +1,5 @@
 import sys
+import arcade
 
 from builder import NetworkBuilder
 from parser import Parser

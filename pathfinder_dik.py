@@ -118,7 +118,7 @@ class Pathfinder:
                 new_negative_priority = negative_priority
 
                 if neighbor.zone_type == ZoneType.PRIORITY:
-                    new_negative_priority -= 1
+                    new_negative_priority = -1
                 neighbor_capacity = self._effective_capacity(neighbor)
                 connection = self.network.get_connection(zone_name, neighbor_name)
                 if connection is None:
