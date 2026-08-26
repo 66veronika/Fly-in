@@ -44,6 +44,8 @@ class Renderer(arcade.Window):
 
         self.paused = False
 
+        self.selected_zone: str | None = None
+
         self.max_turn = max(
             (
                 schedule[-1][1]
@@ -283,6 +285,9 @@ class Renderer(arcade.Window):
             is_occupied = (
                 zone.name in occupied_zones
             )
+            is_selected = (
+                zone.name == self.selected_zone
+            )
 
             self.zone_renderer.draw_zone(
                 zone,
@@ -291,6 +296,7 @@ class Renderer(arcade.Window):
                 start_color,
                 end_color,
                 is_occupied,
+                is_selected,
             )
 
     def _draw_drones(self) -> None:
@@ -335,6 +341,32 @@ class Renderer(arcade.Window):
         self._draw_legend()
         self._draw_status()
 
+    def on_mouse_press(
+        self,
+        x: int,
+        y: int,
+        button: int,
+        modifiers: int,
+    ) -> None:
+        self.selected_zone = None
+
+        click_radius = ZONE_RADIUS + 10
+
+        for zone_name, position in self.zone_positions.items():
+            zone_x, zone_y = position
+
+            distance_x = x - zone_x
+            distance_y = y - zone_y
+
+            distance_squared = (
+                distance_x * distance_x
+                + distance_y * distance_y
+            )
+
+            if distance_squared <= click_radius * click_radius:
+                self.selected_zone = zone_name
+                return
+
     def on_key_press(
         self,
         symbol: int,
@@ -352,6 +384,9 @@ class Renderer(arcade.Window):
             self.current_turn = self.max_turn
             self.turn_progress = 0.0
             self.paused = True
+        
+        elif symbol == arcade.key.ESCAPE:
+            self.selected_zone = None
 
     def _draw_status(self) -> None:
         delivered = self._delivered_drones()

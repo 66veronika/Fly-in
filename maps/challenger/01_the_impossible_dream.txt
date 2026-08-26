@@ -35,7 +35,7 @@ hub: maze_loop5 6 2 [zone=restricted color=brown]
 hub: maze_loop6 6 1 [zone=restricted color=brown]
 
 # === LAYER 2: The Capacity Nightmare ===
-hub: micro_gate1 7 0 [color=orange max_drones=1]
+hub: micro_gate1 7 0 [zone=restricted color=orange max_drones=1]
 hub: micro_gate2 8 0 [color=orange max_drones=1]
 hub: micro_gate3 9 0 [color=orange max_drones=1]
 

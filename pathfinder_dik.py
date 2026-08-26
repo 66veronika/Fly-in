@@ -9,6 +9,7 @@ from reservation import ReservationTable
 # A schedule is the list of states a single drone passes through.
 Schedule = list[tuple[str, int]]
 
+
 class Pathfinder:
     def __init__(self, network: Network) -> None:
         self.network = network
@@ -113,14 +114,20 @@ class Pathfinder:
                         ),
                     )
             # --- move to a neighbor ---
-            for neighbor_name in self.network.neighbors(zone_name, accessible_only=True):
+            for neighbor_name in self.network.neighbors(
+                zone_name,
+                accessible_only=True
+            ):
                 neighbor = self.network.get_zone(neighbor_name)
                 new_negative_priority = negative_priority
 
                 if neighbor.zone_type == ZoneType.PRIORITY:
                     new_negative_priority = -1
                 neighbor_capacity = self._effective_capacity(neighbor)
-                connection = self.network.get_connection(zone_name, neighbor_name)
+                connection = self.network.get_connection(
+                    zone_name,
+                    neighbor_name
+                )
                 if connection is None:
                     continue
 
@@ -199,7 +206,8 @@ class Pathfinder:
             )
             if not schedule:
                 raise RuntimeError(
-                    f"No feasible path found for drone {drone_id} within {max_turn} turns"
+                    f"No feasible path found for drone {drone_id} "
+                    f"within {max_turn} turns"
                 )
             self._commit_schedule(reservations, schedule)
             schedules.append(schedule)

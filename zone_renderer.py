@@ -16,7 +16,15 @@ class ZoneRenderer:
         start_color: tuple[int, int, int],
         end_color: tuple[int, int, int],
         is_occupied: bool,
+        is_selected: bool,
     ) -> None:
+        if is_selected:
+            self._draw_zone_name(
+                zone.name,
+                x,
+                y,
+            )
+
         if zone.is_start:
             self._draw_start(
                 x,
@@ -44,6 +52,22 @@ class ZoneRenderer:
 
         else:
             self._draw_normal(x, y, is_occupied)
+
+    def _draw_zone_name(
+        self,
+        name: str,
+        x: float,
+        y: float,
+    ) -> None:
+        arcade.draw_text(
+            name,
+            x,
+            y + ZONE_RADIUS + 15,
+            arcade.color.WHITE,
+            13,
+            anchor_x="center",
+            bold=True,
+        )
 
     def _draw_start(
         self,
