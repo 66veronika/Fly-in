@@ -14,12 +14,6 @@ SCREEN_HEIGHT = int(screen_height * 0.85)
 PADDING = 80
 ZONE_RADIUS = 22
 
-GREEN_LIGHT = (190, 255, 190)
-GREEN_MEDIUM_LIGHT = (140, 230, 150)
-GREEN_MEDIUM = (90, 200, 120)
-GREEN_DARK = (40, 165, 90)
-GREEN_FULL = (20, 120, 65)
-
 
 class Renderer(arcade.Window):
     def __init__(
@@ -124,87 +118,6 @@ class Renderer(arcade.Window):
 
         return delivered
 
-    def _end_color(self) -> tuple[int, int, int]:
-        total = len(self.schedules)
-        delivered = self._delivered_drones()
-
-        if delivered == 0:
-            return arcade.color.DARK_GRAY
-
-        if delivered == total:
-            return GREEN_FULL
-
-        if delivered == 1:
-            return GREEN_LIGHT
-
-        progress = delivered / total
-
-        if progress >= 0.75:
-            return GREEN_DARK
-
-        if progress >= 0.50:
-            return GREEN_MEDIUM
-
-        if progress >= 0.25:
-            return GREEN_MEDIUM_LIGHT
-
-        return GREEN_LIGHT
-    
-    def _departure_turn(
-        self,
-        schedule: Schedule,
-    ) -> int | None:
-        start_name = self.network.get_start_zone().name
-
-        for i in range(len(schedule) - 1):
-            zone_name, turn = schedule[i]
-
-            next_zone_name, _ = schedule[i + 1]
-
-            if (
-                zone_name == start_name
-                and next_zone_name != start_name
-            ):
-                return turn + 1
-
-        return None
-
-    def _drones_at_start(self) -> int:
-        remaining = 0
-
-        for schedule in self.schedules:
-            departure_turn = self._departure_turn(
-                schedule
-            )
-
-            if (
-                departure_turn is None
-                or departure_turn > self.current_turn
-            ):
-                remaining += 1
-
-        return remaining
-    
-    def _start_color(self) -> tuple[int, int, int]:
-        total = len(self.schedules)
-        remaining = self._drones_at_start()
-
-        if remaining == 0:
-            return arcade.color.DARK_GRAY
-
-        percentage = remaining / total
-
-        if percentage > 0.75:
-            return GREEN_FULL
-
-        if percentage > 0.50:
-            return GREEN_DARK
-
-        if percentage > 0.25:
-            return GREEN_MEDIUM
-
-        return GREEN_LIGHT
-
     def _drone_position(
         self,
         schedule: Schedule,
@@ -240,17 +153,6 @@ class Renderer(arcade.Window):
                 return x, y
 
         return None
-    
-    def _occupied_zones(self) -> set[str]:
-        occupied: set[str] = set()
-
-        for schedule in self.schedules:
-            for zone_name, turn in schedule:
-                if turn == self.current_turn:
-                    occupied.add(zone_name)
-                    break
-
-        return occupied
 
     def _draw_connections(self) -> None:
         for connection in self.network.connections:
@@ -272,35 +174,18 @@ class Renderer(arcade.Window):
             )
 
     def _draw_zones(self) -> None:
-        start_color = self._start_color()
-        end_color = self._end_color()
-
-        occupied_zones = self._occupied_zones()
-
         for zone in self.network.zones.values():
-            x, y = self.zone_positions[
-                zone.name
-            ]
+            x, y = self.zone_positions[zone.name]
 
-            is_occupied = (
-                zone.name in occupied_zones
-            )
-            is_selected = (
-                zone.name == self.selected_zone
-            )
+            is_selected = (zone.name == self.selected_zone)
 
-            self.zone_renderer.draw_zone(
-                zone,
-                x,
-                y,
-                start_color,
-                end_color,
-                is_occupied,
-                is_selected,
-            )
+            self.zone_renderer.draw_zone(zone, x, y, is_selected)
 
     def _draw_drones(self) -> None:
-        for schedule in self.schedules:
+        for drone_id, schedule in enumerate(
+            self.schedules,
+            start=1,
+        ):
             position = self._drone_position(
                 schedule
             )
@@ -313,6 +198,7 @@ class Renderer(arcade.Window):
             self.drone_renderer.draw_drone(
                 x,
                 y,
+                drone_id,
             )
 
     def _draw_legend(self) -> None:
@@ -332,6 +218,39 @@ class Renderer(arcade.Window):
             12,
         )
 
+    def _draw_completion_message(self) -> None:
+        total = len(self.schedules)
+
+        if total == 0:
+            return
+
+        if self._delivered_drones() != total:
+            return
+
+        center_x = self.width / 2
+        center_y = self.height / 2
+
+        arcade.draw_text(
+            "ALL DRONES DELIVERED!",
+            center_x,
+            center_y + 30,
+            arcade.color.CHAMPAGNE,
+            45,
+            anchor_x="center",
+            anchor_y="center",
+            bold=True,
+        )
+
+        arcade.draw_text(
+            f"Completed in {self.max_turn} turns",
+            center_x,
+            center_y - 25,
+            arcade.color.LIGHT_GREEN,
+            16,
+            anchor_x="center",
+            anchor_y="center",
+        )
+
     def on_draw(self) -> None:
         self.clear()
 
@@ -340,6 +259,7 @@ class Renderer(arcade.Window):
         self._draw_drones()
         self._draw_legend()
         self._draw_status()
+        self._draw_completion_message()
 
     def on_mouse_press(
         self,
@@ -366,6 +286,7 @@ class Renderer(arcade.Window):
             if distance_squared <= click_radius * click_radius:
                 self.selected_zone = zone_name
                 return
+        self.selected_zone = None
 
     def on_key_press(
         self,

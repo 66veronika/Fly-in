@@ -7,6 +7,7 @@ from pathfinder_dik import Pathfinder
 from simulator import Simulator
 from validator import Validator
 from renderer import Renderer
+from logger import Logger
 
 
 def main() -> None:
@@ -27,6 +28,8 @@ def main() -> None:
 
     pathfinder = Pathfinder(network)
 
+    logger = Logger("output.txt")
+
     schedules = pathfinder.plan_all_drones(
         network.nb_drones
     )
@@ -34,11 +37,12 @@ def main() -> None:
     simulator = Simulator(
         network,
         schedules,
+        logger,
     )
 
     simulator.run()
     Renderer(network, schedules)
-    arcade.run() 
+    arcade.run()
 
 
 if __name__ == "__main__":

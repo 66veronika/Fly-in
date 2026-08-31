@@ -1,5 +1,8 @@
 class Parser:
     def __init__(self, filepath: str) -> None:
+        """
+        Initialize the parser with the input file path and empty parsed data.
+        """
         self.filepath = filepath
         self.data = {
             "nb_drones": None,

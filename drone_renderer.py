@@ -6,6 +6,7 @@ class DroneRenderer:
         self,
         x: float,
         y: float,
+        drone_id: int,
     ) -> None:
         size = 9
 
@@ -28,4 +29,15 @@ class DroneRenderer:
             points,
             arcade.color.BLACK,
             2,
+        )
+
+        arcade.draw_text(
+            str(drone_id),
+            x,
+            y + 1,
+            arcade.color.BLACK,
+            7,
+            anchor_x="center",
+            anchor_y="center",
+            bold=True,
         )
