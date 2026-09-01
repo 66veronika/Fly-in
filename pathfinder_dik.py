@@ -31,12 +31,12 @@ class Pathfinder:
     ) -> Schedule:
         start_state = (start, start_turn)
 
-        # (travel cost, negative priority count)
+        # (travel cost, negative priority count, move count)
         best_rank: dict[
             tuple[str, int],
-            tuple[int, int],
+            tuple[int, int, int],
         ] = {
-            start_state: (0, 0)
+            start_state: (0, 0, 0)
         }
 
         previous: dict[
@@ -45,13 +45,13 @@ class Pathfinder:
         ] = {}
 
         queue: list[
-            tuple[int, int, str, int]
+            tuple[int, int, int, str, int]
         ] = [
-            (0, 0, start, start_turn)
+            (0, 0, 0, start, start_turn)
         ]
 
         while queue:
-            cost, negative_priority, zone_name, turn = (
+            cost, negative_priority, move_count, zone_name, turn = (
                 heapq.heappop(queue)
             )
 
@@ -60,6 +60,7 @@ class Pathfinder:
             current_rank = (
                 cost,
                 negative_priority,
+                move_count,
             )
 
             known_rank = best_rank.get(state)
@@ -95,11 +96,12 @@ class Pathfinder:
                 new_rank = (
                     new_cost,
                     negative_priority,
+                    move_count,
                 )
 
                 if new_rank < best_rank.get(
                     wait_state,
-                    (float("inf"), 0),
+                    (float("inf"), 0, float("inf")),
                 ):
                     best_rank[wait_state] = new_rank
                     previous[wait_state] = state
@@ -109,6 +111,7 @@ class Pathfinder:
                         (
                             new_cost,
                             negative_priority,
+                            move_count,
                             zone_name,
                             wait_turn,
                         ),
@@ -142,7 +145,11 @@ class Pathfinder:
                     arrival_turn,
                 ):
                     continue
-                if not reservations.zone_free(neighbor_name, neighbor_capacity, arrival_turn):
+                if not reservations.zone_free(
+                    neighbor_name,
+                    neighbor_capacity,
+                    arrival_turn
+                ):
                     continue
 
                 new_state = (
@@ -152,13 +159,16 @@ class Pathfinder:
 
                 new_cost = cost + duration
 
+                new_move_count = move_count + 1
+
                 new_rank = (
                     new_cost,
                     new_negative_priority,
+                    new_move_count,
                 )
                 if new_rank < best_rank.get(
                     new_state,
-                    (float("inf"), 0),
+                    (float("inf"), 0, float("inf")),
                 ):
                     best_rank[new_state] = new_rank
                     previous[new_state] = state
@@ -168,6 +178,7 @@ class Pathfinder:
                         (
                             new_cost,
                             new_negative_priority,
+                            new_move_count,
                             neighbor_name,
                             arrival_turn,
                         ),
@@ -194,7 +205,12 @@ class Pathfinder:
 
         return path
 
-    def plan_all_drones(self, nb_drones: int, max_turn: int = 500) -> list[Schedule]:
+    def plan_all_drones(
+            self,
+            nb_drones: int,
+            max_turn: int = 500
+    ) -> list[Schedule]:
+
         reservations = ReservationTable()
         start = self.network.get_start_zone().name
         end = self.network.get_end_zone().name
@@ -213,7 +229,12 @@ class Pathfinder:
             schedules.append(schedule)
         return schedules
 
-    def _commit_schedule(self, reservations: ReservationTable, schedule: Schedule) -> None:
+    def _commit_schedule(
+            self,
+            reservations: ReservationTable,
+            schedule: Schedule
+    ) -> None:
+
         first_zone, first_turn = schedule[0]
         reservations.reserve_zone(first_zone, first_turn)
         for i in range(len(schedule) - 1):

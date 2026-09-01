@@ -75,14 +75,14 @@ class Zone:
             )
 
         self.occupants.remove(drone_id)
-    
+
     def reserve(self, drone_id: int) -> None:
         if drone_id in self.reservations:
             raise ValueError(
                 f"Drone {drone_id} already has a reservation "
                 f"in zone '{self.name}'"
             )
-            
+
         if not self.has_capacity():
             raise ValueError(
                 f"Zone '{self.name}' has no capacity to reserve"

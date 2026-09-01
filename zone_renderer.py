@@ -23,7 +23,14 @@ def resolve_color(color_name: str | None) -> arcade.types.Color | None:
 class ZoneRenderer:
     """Draws zones using their type (shape) and optional map color (fill)."""
 
-    def draw_zone(self, zone: Zone, x: float, y: float, is_selected: bool) -> None:
+    def draw_zone(
+            self,
+            zone: Zone,
+            x: float,
+            y: float,
+            is_selected: bool
+    ) -> None:
+
         color = resolve_color(zone.color)
 
         if zone.is_start:
@@ -59,25 +66,44 @@ class ZoneRenderer:
                 anchor_x="center", anchor_y="center", bold=True,
             )
 
-    def _draw_star(self, x: float, y: float, color: arcade.types.Color | None) -> None:
+    def _draw_star(
+            self,
+            x: float,
+            y: float,
+            color: arcade.types.Color | None
+    ) -> None:
+
         outer, inner = ZONE_RADIUS + 5, ZONE_RADIUS / 2
         points = []
         for i in range(10):
             angle = math.radians(-90 + i * 36)
             radius = outer if i % 2 == 0 else inner
-            points.append((x + math.cos(angle) * radius, y + math.sin(angle) * radius))
+            points.append((
+                x + math.cos(angle) * radius,
+                y + math.sin(angle) * radius
+                ))
 
         if color is not None:
             arcade.draw_polygon_filled(points, color)
         arcade.draw_polygon_outline(points, arcade.color.WHITE, 3)
 
-    def _draw_cross(self, x: float, y: float, color: arcade.types.Color | None) -> None:
+    def _draw_cross(self,
+                    x: float,
+                    y: float,
+                    color: arcade.types.Color | None
+                    ) -> None:
+
         line_color = color if color is not None else arcade.color.WHITE
         size = ZONE_RADIUS
         arcade.draw_line(x - size, y - size, x + size, y + size, line_color, 5)
         arcade.draw_line(x - size, y + size, x + size, y - size, line_color, 5)
 
-    def _draw_square(self, x: float, y: float, color: arcade.types.Color | None) -> None:
+    def _draw_square(self,
+                     x: float,
+                     y: float,
+                     color: arcade.types.Color | None
+                     ) -> None:
+
         rect = arcade.XYWH(x, y, ZONE_RADIUS * 2, ZONE_RADIUS * 1.3)
         if color is not None:
             arcade.draw_rect_filled(rect, color)

@@ -305,7 +305,7 @@ class Renderer(arcade.Window):
             self.current_turn = self.max_turn
             self.turn_progress = 0.0
             self.paused = True
-        
+
         elif symbol == arcade.key.ESCAPE:
             self.selected_zone = None
 
