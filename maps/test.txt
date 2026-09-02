@@ -1,5 +1,5 @@
 #gd
-nb_drones: 3
+nb_drones: +10
 
 start_hub: start 0 0 [max_drones=1]
 hub: normalway 1 1

@@ -1,17 +1,22 @@
 class Validator:
+    """Validate parsed map data and prepare it for model creation."""
+
     ALLOWED_ZONE_TYPES = {"normal", "blocked", "restricted", "priority"}
     ALLOWED_ZONE_KEYS = {"zone", "color", "max_drones"}
     ALLOWED_CONNECTION_KEYS = {"max_link_capacity"}
 
     def __init__(self, data: dict) -> None:
+        """Initialize the validator with parsed map data."""
         self.data = data
 
     def validate(self) -> None:
+        """Run all validation checks on the parsed map data."""
         self.validate_nb_drones()
         self.validate_zones()
         self.validate_connections()
 
     def validate_nb_drones(self) -> None:
+        """Validate that the number of drones is positive."""
         nb_drones = self.data["nb_drones"]
         if not nb_drones:
             raise ValueError(
@@ -24,6 +29,7 @@ class Validator:
             )
 
     def validate_zones(self) -> None:
+        """Validate zone definitions."""
         zones = self.data["zones"]
         names: set[str] = set()
         start_hub_line: int | None = None
@@ -87,6 +93,7 @@ class Validator:
             raise ValueError("Map must contain one end_hub")
 
     def validate_zone_metadata(self, zone: dict) -> None:
+        """Validate and store metadata for a single zone."""
         metadata = zone["metadata"]
         line = zone["line_number"]
 
@@ -122,6 +129,7 @@ class Validator:
 
     def validate_connections(self) -> None:
         seen_connections: set[tuple[str, str]] = set()
+        """Validate connections between previously defined zones."""
 
         for connection in self.data["connections"]:
             from_zone = connection["from"]
@@ -167,6 +175,7 @@ class Validator:
             self.validate_connection_metadata(connection)
 
     def validate_connection_metadata(self, connection: dict) -> None:
+        """Validate and store metadata for a single connection."""
         metadata = connection["metadata"]
         line = connection["line_number"]
 

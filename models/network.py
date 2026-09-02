@@ -3,7 +3,10 @@ from models.zone import Zone
 
 
 class Network:
+    """Store the drone network, including zones, connections, and endpoints."""
     def __init__(self, nb_drones: int) -> None:
+        """Initialize an empty network for the given number of drones."""
+
         if nb_drones <= 0:
             raise ValueError(
                 "Number of drones must be a positive integer"
@@ -11,13 +14,8 @@ class Network:
 
         self.nb_drones = nb_drones
 
-        # Zone name -> Zone object
         self.zones: dict[str, Zone] = {}
-
-        # All undirected connections in the network
         self.connections: list[Connection] = []
-
-        # Names of the structural start and end zones
         self.start_zone: str | None = None
         self.end_zone: str | None = None
 
@@ -109,7 +107,6 @@ class Network:
     ) -> Connection | None:
         """
         Return the connection between two zones.
-
         Returns None when no such connection exists.
         """
         for connection in self.connections:
@@ -159,14 +156,3 @@ class Network:
             result.append(neighbor_name)
 
         return result
-
-    def __repr__(self) -> str:
-        return (
-            "Network("
-            f"nb_drones={self.nb_drones}, "
-            f"zones={len(self.zones)}, "
-            f"connections={len(self.connections)}, "
-            f"start_zone={self.start_zone!r}, "
-            f"end_zone={self.end_zone!r}"
-            ")"
-        )

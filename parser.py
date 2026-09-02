@@ -11,6 +11,7 @@ class Parser:
         }
 
     def parse(self) -> dict:
+        """Parse the input file and return the collected data."""
         first_directive_seen = False
         with open(self.filepath, "r") as file:
             for line_number, line in enumerate(file, start=1):
@@ -31,6 +32,7 @@ class Parser:
         return self.data
 
     def parse_line(self, line: str, line_number: int) -> None:
+        """Parse a single line based on its type."""
         if line.startswith("nb_drones:"):
             self.parse_nb_drones(line, line_number)
         elif line.startswith("start_hub:"):
@@ -47,6 +49,7 @@ class Parser:
                 )
 
     def parse_nb_drones(self, line: str, line_number: int) -> None:
+        """Parse and store the number of drones."""
         part = line.split()
 
         if self.data["nb_drones"] is not None:
@@ -73,6 +76,7 @@ class Parser:
                 )
 
     def parse_zone(self, line: str, line_number: int) -> None:
+        """Parse and store a zone definition."""
         part = line.split()
 
         if len(part) < 4:
@@ -85,16 +89,17 @@ class Parser:
         metadata = self.parse_metadata(metadata_raw, line_number)
 
         zone_data = {
-            "type": zone_type_prefix,   # "start_hub" / "end_hub" / "hub"
+            "type": zone_type_prefix,
             "name": part[1],
             "x": part[2],
             "y": part[3],
-            "metadata": metadata,       # dict, ne string!
+            "metadata": metadata,
             "line_number": line_number,
         }
         self.data["zones"].append(zone_data)
 
     def parse_connection(self, line: str, line_number: int) -> None:
+        """Parse and store a connection between two zones."""
         part = line.split()
 
         if len(part) < 2:
@@ -121,8 +126,7 @@ class Parser:
         self.data["connections"].append(connection_data)
 
     def parse_metadata(self, raw: str, line_number: int) -> dict[str, str]:
-        """Parsuje '[key=value key2=value2]' na dict. Nevaliduje POVOLENÉ
-        klíče/hodnoty - to je práce Validatoru, tady jen syntax."""
+        """Parse metadata syntax into a dictionary of key-value pairs."""
         raw = raw.strip()
         if not raw:
             return {}
