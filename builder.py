@@ -6,9 +6,11 @@ from models.zone import Zone
 
 class NetworkBuilder:
     def __init__(self, data: dict) -> None:
+        """Initialize the builder with validated data."""
         self.data = data
 
     def build(self) -> Network:
+        """Build and return the complete network."""
         network = Network(
             nb_drones=self.data["nb_drones"]["number"]
         )
@@ -19,6 +21,7 @@ class NetworkBuilder:
         return network
 
     def build_zones(self, network: Network) -> None:
+        """Add all zone objects to Network"""
         for zone_data in self.data["zones"]:
             zone = Zone(
                 name=zone_data["name"],
@@ -33,6 +36,7 @@ class NetworkBuilder:
             network.add_zone(zone)
 
     def build_connections(self, network: Network) -> None:
+        """Add all connections to Network"""
         for connection_data in self.data["connections"]:
             connection = Connection(
                 zone_a=connection_data["from"],

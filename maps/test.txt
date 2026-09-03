@@ -3,7 +3,7 @@ nb_drones: +10
 
 start_hub: start 0 0 [max_drones=1]
 hub: normalway 1 1
-hub: priorityway 1 -1 [zone=priority]
+hub: priorityway 1 -1 [zone=blocked]
 end_hub: goal 2 0
 
 connection: start-normalway

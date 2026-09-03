@@ -24,13 +24,6 @@ class Drone:
         """Return whether the drone is currently traveling."""
         return self.in_transit_connection is not None
 
-    def is_delivered(self, end_zone: str) -> bool:
-        """Return whether the drone has reached the end zone."""
-        return (
-            not self.is_in_transit
-            and self.current_zone == end_zone
-        )
-
     def start_transit(
         self,
         connection: Connection,
