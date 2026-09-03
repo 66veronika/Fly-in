@@ -2,12 +2,15 @@ from models.connection import Connection
 
 
 class Drone:
+    """Represent a drone and its current movement state."""
+
     def __init__(
             self,
             drone_id: int,
             current_zone: str,
             path: list[str],
     ) -> None:
+        """Initialize a drone with its ID, current zone, and path."""
         self.drone_id = drone_id
         self.current_zone = current_zone
         self.path = path
@@ -18,9 +21,11 @@ class Drone:
 
     @property
     def is_in_transit(self) -> bool:
+        """Return whether the drone is currently traveling."""
         return self.in_transit_connection is not None
 
     def is_delivered(self, end_zone: str) -> bool:
+        """Return whether the drone has reached the end zone."""
         return (
             not self.is_in_transit
             and self.current_zone == end_zone
@@ -32,6 +37,7 @@ class Drone:
         destination_zone: str,
         movement_cost: int,
     ) -> None:
+        """Start moving the drone through a connection."""
         if self.is_in_transit:
             raise ValueError(
                 f"Drone {self.drone_id} is already in transit"
@@ -48,7 +54,7 @@ class Drone:
 
         if not connection.connects(self.current_zone):
             raise ValueError(
-                f"Connection does not include the drone's current "
+                "Connection does not include the drone's current "
                 f"zone '{self.current_zone}'"
             )
 
@@ -62,11 +68,8 @@ class Drone:
             )
 
     def advance_transit(self) -> bool:
-        """
-        Advance the drone by one turn.
-
-        Returns True when the drone reaches its destination.
-        """
+        """Advance the drone by one turn.
+        Returns True when the drone reaches its destination."""
         if not self.is_in_transit:
             raise ValueError(
                 f"Drone {self.drone_id} is not in transit"
@@ -90,6 +93,7 @@ class Drone:
         return True
 
     def __repr__(self) -> str:
+        """Return a readable representation of the drone."""
         if self.is_in_transit:
             return (
                 "Drone("

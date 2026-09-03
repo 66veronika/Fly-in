@@ -121,14 +121,12 @@ class Network:
     def neighbors(
         self,
         zone_name: str,
-        accessible_only: bool = False,
     ) -> list[str]:
         """
         Return the names of all zones directly connected
         to the given zone.
 
-        When accessible_only is True, blocked zones
-        are excluded.
+        Blocked zones are excluded.
         """
         if zone_name not in self.zones:
             raise ValueError(
@@ -147,10 +145,7 @@ class Network:
 
             neighbor = self.zones[neighbor_name]
 
-            if (
-                accessible_only
-                and not neighbor.is_accessible()
-            ):
+            if not neighbor.is_accessible():
                 continue
 
             result.append(neighbor_name)

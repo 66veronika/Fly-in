@@ -47,7 +47,6 @@ class Pathfinder:
 
         for neighbor in self.network.neighbors(
             current,
-            accessible_only=True,
         ):
             if neighbor in visited:
                 continue

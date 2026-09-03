@@ -118,8 +118,7 @@ class Pathfinder:
                     )
             # --- move to a neighbor ---
             for neighbor_name in self.network.neighbors(
-                zone_name,
-                accessible_only=True
+                zone_name
             ):
                 neighbor = self.network.get_zone(neighbor_name)
                 new_negative_priority = negative_priority

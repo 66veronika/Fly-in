@@ -9,7 +9,6 @@ from validator import Validator
 from renderer import Renderer
 from logger import Logger
 
-
 def main() -> None:
     if len(sys.argv) != 2:
         print("Usage: python3 main.py <map_file>")

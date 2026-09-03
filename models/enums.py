@@ -2,7 +2,7 @@ from enum import Enum
 
 
 class ZoneType(Enum):
-    """Zone type provided from zone metadata."""
+    """Define the possible functional types of a zone."""
 
     NORMAL = "normal"
     BLOCKED = "blocked"
@@ -11,7 +11,7 @@ class ZoneType(Enum):
 
 
 class HubType(Enum):
-    """Structural role of a zone in the map."""
+    """Define the structural role of a zone in the map."""
 
     START = "start_hub"
     NORMAL = "hub"
