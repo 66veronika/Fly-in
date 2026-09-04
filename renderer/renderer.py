@@ -6,24 +6,27 @@ from .zone_renderer import ZoneRenderer
 from .drone_renderer import DroneRenderer
 
 
-screen_width, screen_height = arcade.get_display_size()
-
-SCREEN_WIDTH = int(screen_width * 0.85)
-SCREEN_HEIGHT = int(screen_height * 0.85)
-
 PADDING = 80
 ZONE_RADIUS = 22
 
 
 class Renderer(arcade.Window):
+    """Display and animate the drone simulation."""
+
     def __init__(
         self,
         network: Network,
         schedules: list[Schedule],
     ) -> None:
+        """Initialize the simulation window and renderer state."""
+        screen_width, screen_height = arcade.get_display_size()
+
+        window_width = int(screen_width * 0.85)
+        window_height = int(screen_height * 0.85)
+
         super().__init__(
-            SCREEN_WIDTH,
-            SCREEN_HEIGHT,
+            window_width,
+            window_height,
             "Fly-in",
             resizable=True,
             center_window=True,
@@ -59,11 +62,15 @@ class Renderer(arcade.Window):
     def _calculate_zone_positions(
         self,
     ) -> dict[str, tuple[float, float]]:
+        """Convert map coordinates and
+        turn them into screen coordinates (positions)"""
+
         zones = list(self.network.zones.values())
 
         x_values = [zone.x for zone in zones]
         y_values = [zone.y for zone in zones]
 
+        # min and max for full size of the map
         min_x = min(x_values)
         max_x = max(x_values)
 
@@ -103,11 +110,13 @@ class Renderer(arcade.Window):
         width: int,
         height: int,
     ) -> None:
+        """Recalculate zone positions when changing the size of the window."""
         self.zone_positions = (
             self._calculate_zone_positions()
         )
 
     def _delivered_drones(self) -> int:
+        """Return the number of drones which reached End zone."""
         delivered = 0
 
         for schedule in self.schedules:
@@ -122,6 +131,8 @@ class Renderer(arcade.Window):
         self,
         schedule: Schedule,
     ) -> tuple[float, float] | None:
+        """Calculate a drone's screen position
+        at the current simulation time."""
         simulation_time = (
             self.current_turn
             + self.turn_progress
@@ -155,6 +166,7 @@ class Renderer(arcade.Window):
         return None
 
     def _draw_connections(self) -> None:
+        """Draw all connections between zones."""
         for connection in self.network.connections:
             x1, y1 = self.zone_positions[
                 connection.zone_a
@@ -174,6 +186,7 @@ class Renderer(arcade.Window):
             )
 
     def _draw_zones(self) -> None:
+        """Draw all zones in the network."""
         for zone in self.network.zones.values():
             x, y = self.zone_positions[zone.name]
 
@@ -182,6 +195,7 @@ class Renderer(arcade.Window):
             self.zone_renderer.draw_zone(zone, x, y, is_selected)
 
     def _draw_drones(self) -> None:
+        """Draw all drones that are still in transit."""
         for drone_id, schedule in enumerate(
             self.schedules,
             start=1,
@@ -202,6 +216,7 @@ class Renderer(arcade.Window):
             )
 
     def _draw_legend(self) -> None:
+        """Draw the zone legend and keyboard controls."""
         arcade.draw_text(
             "○ Normal   ★ Priority   ▬ Restricted (2 turns)   X Blocked",
             20,
@@ -219,6 +234,7 @@ class Renderer(arcade.Window):
         )
 
     def _draw_completion_message(self) -> None:
+        """Draw a completion message when all drones are delivered."""
         total = len(self.schedules)
 
         if total == 0:
