@@ -1,9 +1,9 @@
 import arcade
 
 from models.network import Network
-from pathfinder_dik import Schedule
-from zone_renderer import ZoneRenderer
-from drone_renderer import DroneRenderer
+from algorithm import Schedule
+from .zone_renderer import ZoneRenderer
+from .drone_renderer import DroneRenderer
 
 
 screen_width, screen_height = arcade.get_display_size()

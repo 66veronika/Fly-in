@@ -1,5 +1,5 @@
 from models.network import Network
-from pathfinder_dik import Schedule
+from algorithm import Schedule
 from logger import Logger
 
 

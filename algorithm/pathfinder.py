@@ -3,7 +3,7 @@ import heapq
 from models.enums import ZoneType
 from models.network import Network
 from models.zone import Zone
-from reservation import ReservationTable
+from .reservation import ReservationTable
 
 # A "state" in the search is (zone_name, turn).
 # A schedule is the list of states a single drone passes through.

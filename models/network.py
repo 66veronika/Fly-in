@@ -125,7 +125,6 @@ class Network:
         """
         Return the names of all zones directly connected
         to the given zone.
-
         Blocked zones are excluded.
         """
         if zone_name not in self.zones:

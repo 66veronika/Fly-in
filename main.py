@@ -3,11 +3,12 @@ import arcade
 
 from builder import NetworkBuilder
 from parser import Parser
-from pathfinder_dik import Pathfinder
+from algorithm import Pathfinder
 from simulator import Simulator
 from validator import Validator
 from renderer import Renderer
 from logger import Logger
+
 
 def main() -> None:
     if len(sys.argv) != 2:
