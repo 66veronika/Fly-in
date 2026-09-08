@@ -62,8 +62,10 @@ class Renderer(arcade.Window):
     def _calculate_zone_positions(
         self,
     ) -> dict[str, tuple[float, float]]:
-        """Convert map coordinates and
-        turn them into screen coordinates (positions)"""
+        """
+        Convert map coordinates and
+        turn them into screen coordinates (positions)
+        """
 
         zones = list(self.network.zones.values())
 
@@ -131,8 +133,10 @@ class Renderer(arcade.Window):
         self,
         schedule: Schedule,
     ) -> tuple[float, float] | None:
-        """Calculate a drone's screen position
-        at the current simulation time."""
+        """
+        Calculate a drone's screen position
+        at the current simulation time.
+        """
         simulation_time = (
             self.current_turn
             + self.turn_progress
@@ -268,6 +272,7 @@ class Renderer(arcade.Window):
         )
 
     def on_draw(self) -> None:
+        """Draw the current simulation frame."""
         self.clear()
 
         self._draw_connections()
@@ -284,6 +289,7 @@ class Renderer(arcade.Window):
         button: int,
         modifiers: int,
     ) -> None:
+        """Handle mouse clicks and select a zone when the user clicks on it."""
         self.selected_zone = None
 
         click_radius = ZONE_RADIUS + 10
@@ -309,6 +315,7 @@ class Renderer(arcade.Window):
         symbol: int,
         modifiers: int,
     ) -> None:
+        """Handle simulation keyboard controls."""
         if symbol == arcade.key.SPACE:
             self.paused = not self.paused
 
@@ -326,6 +333,7 @@ class Renderer(arcade.Window):
             self.selected_zone = None
 
     def _draw_status(self) -> None:
+        """Draw the current simulation status."""
         delivered = self._delivered_drones()
         total = len(self.schedules)
 
@@ -333,9 +341,6 @@ class Renderer(arcade.Window):
             self.current_turn + 1,
             self.max_turn,
         )
-
-        if self.current_turn >= self.max_turn:
-            display_turn = self.max_turn
 
         if self.paused:
             state = "PAUSED"
@@ -379,6 +384,10 @@ class Renderer(arcade.Window):
         self,
         delta_time: float,
     ) -> None:
+        """
+        Advance the simulation based on elapsed time.
+        A full turn is reached when turn_progress reaches 1.0.
+        """
         if self.paused:
             return
 

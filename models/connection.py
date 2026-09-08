@@ -8,7 +8,6 @@ class Connection:
             max_link_capacity: int = 1,
     ) -> None:
         """Initialize a connection between two zones."""
-
         self.zone_a = zone_a
         self.zone_b = zone_b
         self.max_link_capacity = max_link_capacity
@@ -25,7 +24,6 @@ class Connection:
         zone_b: str,
     ) -> bool:
         """Return whether the connection joins the two given zones."""
-
         return (
             (
                 self.zone_a == zone_a
@@ -40,7 +38,6 @@ class Connection:
 
     def other_end(self, zone_name: str) -> bool:
         """Return the zone on the other end of the connection."""
-
         if zone_name == self.zone_a:
             return self.zone_b
         if zone_name == self.zone_b:

@@ -130,7 +130,6 @@ class Validator:
     def validate_connections(self) -> None:
         seen_connections: set[tuple[str, str]] = set()
         """Validate connections between previously defined zones."""
-
         for connection in self.data["connections"]:
             from_zone = connection["from"]
             to_zone = connection["to"]

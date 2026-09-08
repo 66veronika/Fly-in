@@ -3,6 +3,7 @@ from .enums import ZoneType, HubType
 
 class Zone:
     """Represent a zone in the drone network."""
+
     def __init__(
         self,
         name: str,
@@ -39,7 +40,6 @@ class Zone:
     def has_capacity(self) -> bool:
         """Return whether the zone can accept another drone.
         End zone accepts al drones."""
-
         if self.is_end:
             return True
 
@@ -61,7 +61,6 @@ class Zone:
 
     def add_drone(self, drone_id: int) -> None:
         """Add a drone to the zone."""
-
         if drone_id in self.occupants:
             raise ValueError(
                 f"Drone {drone_id} is already inside zone '{self.name}'"

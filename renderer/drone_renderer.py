@@ -2,12 +2,15 @@ import arcade
 
 
 class DroneRenderer:
+    """Draw drones with their numbers."""
+
     def draw_drone(
         self,
         x: float,
         y: float,
         drone_id: int,
     ) -> None:
+        """Draw a drone at the given screen position."""
         size = 9
 
         points = [
@@ -34,9 +37,9 @@ class DroneRenderer:
         arcade.draw_text(
             str(drone_id),
             x,
-            y + 1,
+            y + 0.2,
             arcade.color.BLACK,
-            7,
+            6.5,
             anchor_x="center",
             anchor_y="center",
             bold=True,

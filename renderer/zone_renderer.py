@@ -8,19 +8,21 @@ from models.zone import Zone
 ZONE_RADIUS = 22
 
 
-def resolve_color(color_name: str | None) -> arcade.types.Color | None:
-    """Recieve color name from map and turn it into Arcade color object."""
-    if not color_name:
-        return None
-
-    attr_name = color_name.strip().upper()
-    return getattr(arcade.color, attr_name, None) or getattr(
-        arcade.csscolor, attr_name, None
-    )
-
-
 class ZoneRenderer:
     """Draw zones using their type (shape)."""
+
+    def _resolve_color(
+        self,
+        color_name: str | None
+    ) -> arcade.types.Color | None:
+        """Recieve color name from map and turn it into Arcade color object."""
+        if not color_name:
+            return None
+
+        attr_name = color_name.strip().upper()
+
+        return getattr(arcade.color, attr_name, None) or getattr(
+            arcade.csscolor, attr_name, None)
 
     def draw_zone(
             self,
@@ -30,8 +32,7 @@ class ZoneRenderer:
             is_selected: bool
     ) -> None:
         """Draw a zone based on its type"""
-
-        color = resolve_color(zone.color)
+        color = self._resolve_color(zone.color)
 
         if zone.is_start:
             self._draw_circle(x, y, color, label="Start")
@@ -74,7 +75,6 @@ class ZoneRenderer:
             color: arcade.types.Color | None
     ) -> None:
         """Draw a priority zone."""
-
         outer, inner = ZONE_RADIUS + 5, ZONE_RADIUS / 2
         points = []
         for i in range(10):
@@ -96,7 +96,6 @@ class ZoneRenderer:
             color: arcade.types.Color | None
     ) -> None:
         """Draw a blocked zone"""
-
         line_color = color if color is not None else arcade.color.WHITE
         size = ZONE_RADIUS
         arcade.draw_line(x - size, y - size, x + size, y + size, line_color, 5)
@@ -109,7 +108,6 @@ class ZoneRenderer:
             color: arcade.types.Color | None
     ) -> None:
         """Draw a restricted zone."""
-
         rect = arcade.XYWH(x, y, ZONE_RADIUS * 2, ZONE_RADIUS * 1.3)
         if color is not None:
             arcade.draw_rect_filled(rect, color)

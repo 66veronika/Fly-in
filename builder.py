@@ -5,6 +5,8 @@ from models.zone import Zone
 
 
 class NetworkBuilder:
+    """Build a Network from validated map data."""
+
     def __init__(self, data: dict) -> None:
         """Initialize the builder with validated data."""
         self.data = data

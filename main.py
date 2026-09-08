@@ -1,48 +1,58 @@
 import sys
+
 import arcade
 
-from builder import NetworkBuilder
-from parser import Parser
 from algorithm import Pathfinder
+from builder import NetworkBuilder
+from logger import Logger
+from parser import Parser
+from renderer import Renderer
 from simulator import Simulator
 from validator import Validator
-from renderer import Renderer
-from logger import Logger
 
 
 def main() -> None:
+    """Run the Fly-in simulation."""
     if len(sys.argv) != 2:
         print("Usage: python3 main.py <map_file>")
         return
 
     filepath = sys.argv[1]
 
-    parser = Parser(filepath)
-    data = parser.parse()
+    try:
+        parser = Parser(filepath)
+        data = parser.parse()
 
-    validator = Validator(data)
-    validator.validate()
+        validator = Validator(data)
+        validator.validate()
 
-    builder = NetworkBuilder(data)
-    network = builder.build()
+        builder = NetworkBuilder(data)
+        network = builder.build()
 
-    pathfinder = Pathfinder(network)
+        pathfinder = Pathfinder(network)
 
-    logger = Logger("output.txt")
+        logger = Logger("output.txt")
 
-    schedules = pathfinder.plan_all_drones(
-        network.nb_drones
-    )
+        schedules = pathfinder.plan_all_drones(
+            network.nb_drones
+        )
 
-    simulator = Simulator(
-        network,
-        schedules,
-        logger,
-    )
+        simulator = Simulator(
+            network,
+            schedules,
+            logger,
+        )
 
-    simulator.run()
-    Renderer(network, schedules)
-    arcade.run()
+        simulator.run()
+
+        Renderer(
+            network,
+            schedules,
+        )
+        arcade.run()
+
+    except (ValueError, RuntimeError, OSError) as error:
+        print(f"Error: {error}")
 
 
 if __name__ == "__main__":

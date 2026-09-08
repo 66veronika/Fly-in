@@ -1,7 +1,8 @@
 class ReservationTable:
-    """Tracks which zone/turn and connection/turn slots are reserved."""
+    """Track zone and connection reservations for each simulation turn."""
 
     def __init__(self) -> None:
+        """Initialize empty zone and connection reservations."""
         self.zone_reservations: dict[
             tuple[str, int],
             int,
@@ -18,6 +19,7 @@ class ReservationTable:
         max_drones: int | float,
         turn: int,
     ) -> bool:
+        """Return whether a zone has available capacity at a given turn."""
         used = self.zone_reservations.get(
             (zone_name, turn),
             0,
@@ -33,6 +35,10 @@ class ReservationTable:
         start_turn: int,
         end_turn: int,
     ) -> bool:
+        """
+        Return whether a connection has available
+        capacity during the given turns.
+        """
         connection = tuple(sorted((
             zone_a,
             zone_b,
@@ -62,6 +68,7 @@ class ReservationTable:
         zone_name: str,
         turn: int,
     ) -> None:
+        """Reserve one place in a zone for a given turn."""
         key = (
             zone_name,
             turn,
@@ -82,6 +89,7 @@ class ReservationTable:
         start_turn: int,
         end_turn: int,
     ) -> None:
+        """Reserve one place on a connection during the given turns."""
         connection = tuple(sorted((
             zone_a,
             zone_b,

@@ -4,9 +4,9 @@ from models.zone import Zone
 
 class Network:
     """Store the drone network, including zones, connections, and endpoints."""
+
     def __init__(self, nb_drones: int) -> None:
         """Initialize an empty network for the given number of drones."""
-
         if nb_drones <= 0:
             raise ValueError(
                 "Number of drones must be a positive integer"

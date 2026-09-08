@@ -11,12 +11,17 @@ Schedule = list[tuple[str, int]]
 
 
 class Pathfinder:
+    """Find reservation-safe paths for all drones in the network."""
+
     def __init__(self, network: Network) -> None:
+        """Initialize the pathfinder with a network."""
         self.network = network
 
     def _effective_capacity(self, zone: Zone) -> int | float:
-        """Start and end zones are occupancy exceptions per spec:
-        unlimited drones may be present simultaneously."""
+        """
+        Return the allowed capacity of a zone.
+        Start and end zones have unlimited capacity.
+        """
         if zone.is_start or zone.is_end:
             return float("inf")
         return zone.max_drones
@@ -29,6 +34,7 @@ class Pathfinder:
         start_turn: int = 0,
         max_turn: int = 500,
     ) -> Schedule:
+        """Find a reservation-safe schedule from start to end."""
         start_state = (start, start_turn)
 
         # (travel cost, negative priority count, move count)
@@ -39,11 +45,13 @@ class Pathfinder:
             start_state: (0, 0, 0)
         }
 
+        # key = current state, value = previous state
         previous: dict[
             tuple[str, int],
             tuple[str, int],
         ] = {}
 
+        # (cost, negative priority, move count, zone_name, turn)
         queue: list[
             tuple[int, int, int, str, int]
         ] = [
@@ -193,6 +201,7 @@ class Pathfinder:
         ],
         end_state: tuple[str, int],
     ) -> Schedule:
+        """Reconstruct a schedule by following previous states."""
         path = [end_state]
 
         while path[-1] in previous:
@@ -209,6 +218,7 @@ class Pathfinder:
             nb_drones: int,
             max_turn: int = 500
     ) -> list[Schedule]:
+        """Plan and reserve a schedule for every drone."""
 
         reservations = ReservationTable()
         start = self.network.get_start_zone().name
@@ -233,6 +243,7 @@ class Pathfinder:
             reservations: ReservationTable,
             schedule: Schedule
     ) -> None:
+        """Reserve all zones and connections used by a schedule."""
 
         first_zone, first_turn = schedule[0]
         reservations.reserve_zone(first_zone, first_turn)

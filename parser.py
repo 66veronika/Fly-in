@@ -1,4 +1,6 @@
 class Parser:
+    """Parse a map file into structured data."""
+
     def __init__(self, filepath: str) -> None:
         """
         Initialize the parser with the input file path and empty parsed data.
@@ -109,7 +111,10 @@ class Parser:
 
         splitted_connections = part[1].split("-")
 
-        if len(splitted_connections) != 2:
+        if (
+            len(splitted_connections) != 2
+                or not splitted_connections[0]
+                or not splitted_connections[1]):
             raise ValueError(
                 f"Line {line_number}: connection must have two zones"
                 )
