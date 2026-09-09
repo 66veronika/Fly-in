@@ -51,7 +51,9 @@ def main() -> None:
         )
         arcade.run()
 
-    except (ValueError, RuntimeError, OSError) as error:
+    except MemoryError:
+        print("Error: not enough memory to run this simulation")
+    except (ValueError, RuntimeError, OSError, OverflowError) as error:
         print(f"Error: {error}")
 
 

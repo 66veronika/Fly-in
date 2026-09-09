@@ -36,7 +36,7 @@ class Connection:
             )
         )
 
-    def other_end(self, zone_name: str) -> bool:
+    def other_end(self, zone_name: str) -> str:
         """Return the zone on the other end of the connection."""
         if zone_name == self.zone_a:
             return self.zone_b

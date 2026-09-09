@@ -111,3 +111,17 @@ class ReservationTable:
                 )
                 + 1
             )
+
+    def latest_reserved_turn(self) -> int:
+        """Return the latest turn used by any reservation."""
+        turns = [
+            turn
+            for _, turn in self.zone_reservations
+        ]
+
+        turns += [
+            turn
+            for _, turn in self.connection_reservations
+        ]
+
+        return max(turns, default=0)

@@ -32,9 +32,13 @@ class Pathfinder:
         start: str,
         end: str,
         start_turn: int = 0,
-        max_turn: int = 500,
     ) -> Schedule:
         """Find a reservation-safe schedule from start to end."""
+        max_turn = (
+            reservations.latest_reserved_turn()
+            + len(self.network.zones) * 2
+        )
+
         start_state = (start, start_turn)
 
         # (travel cost, negative priority count, move count)
@@ -80,6 +84,7 @@ class Pathfinder:
                 continue
             if zone_name == end:
                 return self._reconstruct(previous, state)
+
             if turn >= max_turn:
                 continue
 
@@ -216,7 +221,6 @@ class Pathfinder:
     def plan_all_drones(
             self,
             nb_drones: int,
-            max_turn: int = 500
     ) -> list[Schedule]:
         """Plan and reserve a schedule for every drone."""
 
@@ -227,12 +231,11 @@ class Pathfinder:
         schedules: list[Schedule] = []
         for drone_id in range(nb_drones):
             schedule = self.find_path_with_reservations(
-                reservations, start, end, start_turn=0, max_turn=max_turn
+                reservations, start, end, start_turn=0
             )
             if not schedule:
                 raise RuntimeError(
-                    f"No feasible path found for drone {drone_id} "
-                    f"within {max_turn} turns"
+                    f"No feasible path found for drone {drone_id + 1}"
                 )
             self._commit_schedule(reservations, schedule)
             schedules.append(schedule)

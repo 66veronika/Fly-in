@@ -1,3 +1,6 @@
+import sys
+
+
 class Validator:
     """Validate parsed map data and prepare it for model creation."""
 
@@ -128,8 +131,8 @@ class Validator:
         zone.pop("metadata")
 
     def validate_connections(self) -> None:
-        seen_connections: set[tuple[str, str]] = set()
         """Validate connections between previously defined zones."""
+        seen_connections: set[tuple[str, str]] = set()
         for connection in self.data["connections"]:
             from_zone = connection["from"]
             to_zone = connection["to"]
