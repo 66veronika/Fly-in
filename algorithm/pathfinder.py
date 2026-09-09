@@ -36,17 +36,17 @@ class Pathfinder:
         """Find a reservation-safe schedule from start to end."""
         max_turn = (
             reservations.latest_reserved_turn()
-            + len(self.network.zones) * 2
+            + 1
+            + 2 * (len(self.network.zones) - 1)
         )
-
         start_state = (start, start_turn)
 
-        # (travel cost, negative priority count, move count)
+        # (travel cost, priority rank, move count)
         best_rank: dict[
             tuple[str, int],
             tuple[int, int, int],
         ] = {
-            start_state: (0, 0, 0)
+            start_state: (0, 1, 0)
         }
 
         # key = current state, value = previous state
@@ -55,15 +55,15 @@ class Pathfinder:
             tuple[str, int],
         ] = {}
 
-        # (cost, negative priority, move count, zone_name, turn)
+        # (cost, priority_rank, move count, zone_name, turn)
         queue: list[
             tuple[int, int, int, str, int]
         ] = [
-            (0, 0, 0, start, start_turn)
+            (0, 1, 0, start, start_turn)
         ]
 
         while queue:
-            cost, negative_priority, move_count, zone_name, turn = (
+            cost, priority_rank, move_count, zone_name, turn = (
                 heapq.heappop(queue)
             )
 
@@ -71,7 +71,7 @@ class Pathfinder:
 
             current_rank = (
                 cost,
-                negative_priority,
+                priority_rank,
                 move_count,
             )
 
@@ -108,7 +108,7 @@ class Pathfinder:
 
                 new_rank = (
                     new_cost,
-                    negative_priority,
+                    priority_rank,
                     move_count,
                 )
 
@@ -123,7 +123,7 @@ class Pathfinder:
                         queue,
                         (
                             new_cost,
-                            negative_priority,
+                            priority_rank,
                             move_count,
                             zone_name,
                             wait_turn,
@@ -134,10 +134,13 @@ class Pathfinder:
                 zone_name
             ):
                 neighbor = self.network.get_zone(neighbor_name)
-                new_negative_priority = negative_priority
+                new_priority_rank = priority_rank
 
-                if neighbor.zone_type == ZoneType.PRIORITY:
-                    new_negative_priority = -1
+                new_priority_rank = (
+                    0
+                    if neighbor.zone_type == ZoneType.PRIORITY
+                    else 1
+                )
                 neighbor_capacity = self._effective_capacity(neighbor)
                 connection = self.network.get_connection(
                     zone_name,
@@ -175,7 +178,7 @@ class Pathfinder:
 
                 new_rank = (
                     new_cost,
-                    new_negative_priority,
+                    new_priority_rank,
                     new_move_count,
                 )
                 if new_rank < best_rank.get(
@@ -189,7 +192,7 @@ class Pathfinder:
                         queue,
                         (
                             new_cost,
-                            new_negative_priority,
+                            new_priority_rank,
                             new_move_count,
                             neighbor_name,
                             arrival_turn,

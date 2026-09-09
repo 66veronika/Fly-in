@@ -1,6 +1,3 @@
-import sys
-
-
 class Validator:
     """Validate parsed map data and prepare it for model creation."""
 
