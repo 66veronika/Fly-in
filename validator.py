@@ -57,8 +57,8 @@ class Validator:
             names.add(name)
 
             try:
-                zone["x"] = int(zone["x"])
-                zone["y"] = int(zone["y"])
+                int(zone["x"])
+                int(zone["y"])
             except ValueError:
                 raise ValueError(
                     f"Line {line}: zone coordinates must be integers"
@@ -93,7 +93,7 @@ class Validator:
             raise ValueError("Map must contain one end_hub")
 
     def validate_zone_metadata(self, zone: dict) -> None:
-        """Validate and store metadata for a single zone."""
+        """Validate metadata for a zone."""
         metadata = zone["metadata"]
         line = zone["line_number"]
 
@@ -101,31 +101,28 @@ class Validator:
             if key not in self.ALLOWED_ZONE_KEYS:
                 raise ValueError(
                     f"Line {line}: unknown zone metadata key '{key}'"
-                    )
+                )
 
         zone_type = metadata.get("zone", "normal")
+
         if zone_type not in self.ALLOWED_ZONE_TYPES:
             raise ValueError(
                 f"Line {line}: invalid zone type '{zone_type}'"
-                )
-        zone["zone_type"] = zone_type
+            )
 
         raw_max_drones = metadata.get("max_drones", "1")
+
         try:
             max_drones = int(raw_max_drones)
         except ValueError:
             raise ValueError(
                 f"Line {line}: max_drones must be an integer"
-                )
+            )
+
         if max_drones <= 0:
             raise ValueError(
                 f"Line {line}: max_drones must be a positive integer"
-                )
-        zone["max_drones"] = max_drones
-
-        zone["color"] = metadata.get("color", "none")
-
-        zone.pop("metadata")
+            )
 
     def validate_connections(self) -> None:
         """Validate connections between previously defined zones."""
@@ -195,5 +192,3 @@ class Validator:
             raise ValueError(
                 f"Line {line}: max_link_capacity must be a positive integer"
                 )
-        connection["max_link_capacity"] = capacity
-        connection.pop("metadata")

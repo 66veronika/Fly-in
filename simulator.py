@@ -1,4 +1,3 @@
-from models.network import Network
 from algorithm import Schedule
 from logger import Logger
 
@@ -11,12 +10,10 @@ class Simulator:
 
     def __init__(
         self,
-        network: Network,
         schedules: list[Schedule],
-        logger: Logger
+        logger: Logger,
     ) -> None:
-        """Initialize the simulator with network, schedules, and logger."""
-        self.network = network
+        """Initialize the simulator with schedules and logger."""
         self.schedules = schedules
         self.logger = logger
 

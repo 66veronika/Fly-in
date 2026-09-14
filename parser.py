@@ -1,3 +1,6 @@
+from typing import Any
+
+
 class Parser:
     """Parse a map file into structured data."""
 
@@ -6,13 +9,13 @@ class Parser:
         Initialize the parser with the input file path and empty parsed data.
         """
         self.filepath = filepath
-        self.data = {
+        self.data: dict[str, Any] = {
             "nb_drones": None,
             "zones": [],
             "connections": [],
         }
 
-    def parse(self) -> dict:
+    def parse(self) -> dict[str, Any]:
         """Parse the input file and return the collected data."""
         first_directive_seen = False
         with open(self.filepath, "r") as file:

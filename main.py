@@ -38,7 +38,6 @@ def main() -> None:
         )
 
         simulator = Simulator(
-            network,
             schedules,
             logger,
         )

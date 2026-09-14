@@ -23,29 +23,37 @@ class NetworkBuilder:
         return network
 
     def build_zones(self, network: Network) -> None:
-        """Add all zone objects to Network"""
+        """Add all zone objects to Network."""
         for zone_data in self.data["zones"]:
+            metadata = zone_data["metadata"]
+
             zone = Zone(
                 name=zone_data["name"],
-                x=zone_data["x"],
-                y=zone_data["y"],
+                x=int(zone_data["x"]),
+                y=int(zone_data["y"]),
                 hub_type=HubType(zone_data["type"]),
-                zone_type=ZoneType(zone_data["zone_type"]),
-                color=zone_data["color"],
-                max_drones=zone_data["max_drones"],
+                zone_type=ZoneType(
+                    metadata.get("zone", "normal")
+                ),
+                color=metadata.get("color", "none"),
+                max_drones=int(
+                    metadata.get("max_drones", "1")
+                ),
             )
 
             network.add_zone(zone)
 
     def build_connections(self, network: Network) -> None:
-        """Add all connections to Network"""
+        """Add all connections to Network."""
         for connection_data in self.data["connections"]:
+            metadata = connection_data["metadata"]
+
             connection = Connection(
                 zone_a=connection_data["from"],
                 zone_b=connection_data["to"],
-                max_link_capacity=connection_data[
-                    "max_link_capacity"
-                ],
+                max_link_capacity=int(
+                    metadata.get("max_link_capacity", "1")
+                ),
             )
 
             network.add_connection(connection)

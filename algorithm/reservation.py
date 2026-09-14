@@ -39,10 +39,10 @@ class ReservationTable:
         Return whether a connection has available
         capacity during the given turns.
         """
-        connection = tuple(sorted((
-            zone_a,
-            zone_b,
-        )))
+        if zone_a <= zone_b:
+            connection = (zone_a, zone_b)
+        else:
+            connection = (zone_b, zone_a)
 
         for turn in range(
             start_turn,
@@ -90,10 +90,10 @@ class ReservationTable:
         end_turn: int,
     ) -> None:
         """Reserve one place on a connection during the given turns."""
-        connection = tuple(sorted((
-            zone_a,
-            zone_b,
-        )))
+        if zone_a <= zone_b:
+            connection = (zone_a, zone_b)
+        else:
+            connection = (zone_b, zone_a)
 
         for turn in range(
             start_turn,
