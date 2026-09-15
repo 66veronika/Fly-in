@@ -33,27 +33,27 @@ class Parser:
                     )
                 first_directive_seen = True
 
-                self.parse_line(line, line_number)
+                self._parse_line(line, line_number)
         return self.data
 
-    def parse_line(self, line: str, line_number: int) -> None:
+    def _parse_line(self, line: str, line_number: int) -> None:
         """Parse a single line based on its type."""
         if line.startswith("nb_drones:"):
-            self.parse_nb_drones(line, line_number)
+            self._parse_nb_drones(line, line_number)
         elif line.startswith("start_hub:"):
-            self.parse_zone(line, line_number)
+            self._parse_zone(line, line_number)
         elif line.startswith("end_hub:"):
-            self.parse_zone(line, line_number)
+            self._parse_zone(line, line_number)
         elif line.startswith("hub:"):
-            self.parse_zone(line, line_number)
+            self._parse_zone(line, line_number)
         elif line.startswith("connection:"):
-            self.parse_connection(line, line_number)
+            self._parse_connection(line, line_number)
         else:
             raise ValueError(
                 f"Line {line_number}: unknown line type"
                 )
 
-    def parse_nb_drones(self, line: str, line_number: int) -> None:
+    def _parse_nb_drones(self, line: str, line_number: int) -> None:
         """Parse and store the number of drones."""
         part = line.split()
 
@@ -80,7 +80,7 @@ class Parser:
                 f"Line {line_number}: number of drones must be an integer"
                 )
 
-    def parse_zone(self, line: str, line_number: int) -> None:
+    def _parse_zone(self, line: str, line_number: int) -> None:
         """Parse and store a zone definition."""
         part = line.split()
 
@@ -91,7 +91,7 @@ class Parser:
 
         zone_type_prefix = part[0].removesuffix(":")
         metadata_raw = " ".join(part[4:])
-        metadata = self.parse_metadata(metadata_raw, line_number)
+        metadata = self._parse_metadata(metadata_raw, line_number)
 
         zone_data = {
             "type": zone_type_prefix,
@@ -103,7 +103,7 @@ class Parser:
         }
         self.data["zones"].append(zone_data)
 
-    def parse_connection(self, line: str, line_number: int) -> None:
+    def _parse_connection(self, line: str, line_number: int) -> None:
         """Parse and store a connection between two zones."""
         part = line.split()
 
@@ -123,7 +123,7 @@ class Parser:
                 )
 
         metadata_raw = " ".join(part[2:])
-        metadata = self.parse_metadata(metadata_raw, line_number)
+        metadata = self._parse_metadata(metadata_raw, line_number)
 
         connection_data = {
             "from": splitted_connections[0],
@@ -133,7 +133,7 @@ class Parser:
         }
         self.data["connections"].append(connection_data)
 
-    def parse_metadata(self, raw: str, line_number: int) -> dict[str, str]:
+    def _parse_metadata(self, raw: str, line_number: int) -> dict[str, str]:
         """Parse metadata syntax into a dictionary of key-value pairs."""
         raw = raw.strip()
         if not raw:

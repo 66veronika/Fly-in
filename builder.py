@@ -17,12 +17,12 @@ class NetworkBuilder:
             nb_drones=self.data["nb_drones"]["number"]
         )
 
-        self.build_zones(network)
-        self.build_connections(network)
+        self._build_zones(network)
+        self._build_connections(network)
 
         return network
 
-    def build_zones(self, network: Network) -> None:
+    def _build_zones(self, network: Network) -> None:
         """Add all zone objects to Network."""
         for zone_data in self.data["zones"]:
             metadata = zone_data["metadata"]
@@ -43,7 +43,7 @@ class NetworkBuilder:
 
             network.add_zone(zone)
 
-    def build_connections(self, network: Network) -> None:
+    def _build_connections(self, network: Network) -> None:
         """Add all connections to Network."""
         for connection_data in self.data["connections"]:
             metadata = connection_data["metadata"]

@@ -11,11 +11,11 @@ class Validator:
 
     def validate(self) -> None:
         """Run all validation checks on the parsed map data."""
-        self.validate_nb_drones()
-        self.validate_zones()
-        self.validate_connections()
+        self._validate_nb_drones()
+        self._validate_zones()
+        self._validate_connections()
 
-    def validate_nb_drones(self) -> None:
+    def _validate_nb_drones(self) -> None:
         """Validate that the number of drones is positive."""
         nb_drones = self.data["nb_drones"]
         if not nb_drones:
@@ -28,7 +28,7 @@ class Validator:
                 "Number of drones must be a positive integer"
             )
 
-    def validate_zones(self) -> None:
+    def _validate_zones(self) -> None:
         """Validate zone definitions."""
         zones = self.data["zones"]
         names: set[str] = set()
@@ -85,14 +85,14 @@ class Validator:
                     f"Line {line}: invalid zone type ({zone['type']})"
                     )
 
-            self.validate_zone_metadata(zone)
+            self._validate_zone_metadata(zone)
 
         if start_hub_line is None:
             raise ValueError("Map must contain one start_hub")
         if end_hub_line is None:
             raise ValueError("Map must contain one end_hub")
 
-    def validate_zone_metadata(self, zone: dict) -> None:
+    def _validate_zone_metadata(self, zone: dict) -> None:
         """Validate metadata for a zone."""
         metadata = zone["metadata"]
         line = zone["line_number"]
@@ -124,7 +124,7 @@ class Validator:
                 f"Line {line}: max_drones must be a positive integer"
             )
 
-    def validate_connections(self) -> None:
+    def _validate_connections(self) -> None:
         """Validate connections between previously defined zones."""
         seen_connections: set[tuple[str, str]] = set()
         for connection in self.data["connections"]:
@@ -168,9 +168,9 @@ class Validator:
                 )
             seen_connections.add(connection_key)
 
-            self.validate_connection_metadata(connection)
+            self._validate_connection_metadata(connection)
 
-    def validate_connection_metadata(self, connection: dict) -> None:
+    def _validate_connection_metadata(self, connection: dict) -> None:
         """Validate and store metadata for a single connection."""
         metadata = connection["metadata"]
         line = connection["line_number"]

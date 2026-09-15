@@ -17,7 +17,7 @@ class Simulator:
         self.schedules = schedules
         self.logger = logger
 
-    def build_turn_events(self) -> list[list[str]]:
+    def _build_turn_events(self) -> list[list[str]]:
         """
         Build the drone movements that should be printed for each turn.
         Returns list of turns and each turn has a list of drone movements.
@@ -63,7 +63,7 @@ class Simulator:
 
     def run(self) -> None:
         """Run the simulation output turn by turn."""
-        events = self.build_turn_events()
+        events = self._build_turn_events()
 
         for turn in range(1, len(events)):
             movements = events[turn]
