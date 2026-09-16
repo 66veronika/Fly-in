@@ -265,7 +265,7 @@ No external graph library is used.
 
 ### Space-time search
 
-The pathfinding algorithm uses **Dijkstra on an implicit space time graph**.
+The pathfinding algorithm uses **cooperative Dijkstra on an implicit space time graph**.
 
 A search state is represented as:
 
@@ -441,7 +441,7 @@ and creates `Zone`, `Connection`, and `Network` objects.
 
 ### Pathfinder
 
-`Pathfinder` calculates reservation-safe drone schedules using the space time Dijkstra.
+`Pathfinder` calculates reservation-safe drone schedules using the cooperative Dijkstra.
 
 ### ReservationTable
 
@@ -555,11 +555,11 @@ If no feasible schedule can be found for a drone, the pathfinder raises an error
 
 Resources used while working on the project include:
 
-* Python documentation — `heapq`
+* Python documentation — heapq
 
   * used for understanding priority queues and heap operations
 
-* Python documentation — `Enum`
+* Python documentation — Enum
 
   * used for representing zone and hub types
 
@@ -579,13 +579,18 @@ Resources used while working on the project include:
 
   * used for the graphical visualization, window events, keyboard controls, and drawing functions
 
-* General graph-search material covering Uniform-Cost Search and Dijkstra-style shortest-path exploration
+* General graph-search material covering Dijkstra-style shortest-path exploration
 
   * used to understand lowest-cost-first graph traversal
 
 * Material about space-time pathfinding and reservation tables
 
   * used to understand how time can be included in a search state and how multiple moving agents can avoid conflicts
+
+  https://api.arcade.academy/en/latest/api_docs/api/drawing_primitives.html?utm_source=chatgpt.com
+  https://www.geeksforgeeks.org/python/heap-queue-or-heapq-in-python/
+  https://www.geeksforgeeks.org/dsa/dijkstras-shortest-path-algorithm-greedy-algo-7/
+  https://www.geeksforgeeks.org/dsa/graph-data-structure-and-algorithms/
 
 ### Use of AI
 
