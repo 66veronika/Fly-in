@@ -10,7 +10,7 @@ install:
 	$(PIP) install --upgrade pip
 	$(PIP) install -r requirements.txt
 
-run:
+run: install
 	$(PYTHON) main.py $(MAP)
 
 debug:

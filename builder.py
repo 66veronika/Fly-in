@@ -2,12 +2,13 @@ from models.connection import Connection
 from models.enums import HubType, ZoneType
 from models.network import Network
 from models.zone import Zone
+from typing import Dict, Any
 
 
 class NetworkBuilder:
     """Build a Network from validated map data."""
 
-    def __init__(self, data: dict) -> None:
+    def __init__(self, data: Dict[str, Any]) -> None:
         """Initialize the builder with validated data."""
         self.data = data
 

@@ -91,7 +91,7 @@ class Pathfinder:
             zone = self.network.get_zone(zone_name)
             zone_capacity = self._effective_capacity(zone)
 
-            # wait in place 
+            # wait in place
             wait_turn = turn + 1
 
             if reservations.zone_free(

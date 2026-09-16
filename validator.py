@@ -1,3 +1,6 @@
+from typing import Dict, Any
+
+
 class Validator:
     """Validate parsed map data and prepare it for model creation."""
 
@@ -5,7 +8,7 @@ class Validator:
     ALLOWED_ZONE_KEYS = {"zone", "color", "max_drones"}
     ALLOWED_CONNECTION_KEYS = {"max_link_capacity"}
 
-    def __init__(self, data: dict) -> None:
+    def __init__(self, data: Dict[str, Any]) -> None:
         """Initialize the validator with parsed map data."""
         self.data = data
 
@@ -92,7 +95,7 @@ class Validator:
         if end_hub_line is None:
             raise ValueError("Map must contain one end_hub")
 
-    def _validate_zone_metadata(self, zone: dict) -> None:
+    def _validate_zone_metadata(self, zone: Dict[str, Any]) -> None:
         """Validate metadata for a zone."""
         metadata = zone["metadata"]
         line = zone["line_number"]
@@ -170,7 +173,10 @@ class Validator:
 
             self._validate_connection_metadata(connection)
 
-    def _validate_connection_metadata(self, connection: dict) -> None:
+    def _validate_connection_metadata(
+            self,
+            connection: Dict[str, Any]
+            ) -> None:
         """Validate and store metadata for a single connection."""
         metadata = connection["metadata"]
         line = connection["line_number"]
