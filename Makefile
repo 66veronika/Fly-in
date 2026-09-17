@@ -10,7 +10,7 @@ install:
 	$(PIP) install --upgrade pip
 	$(PIP) install -r requirements.txt
 
-run: install
+run:
 	$(PYTHON) main.py $(MAP)
 
 debug:
@@ -32,4 +32,4 @@ lint-strict:
 	$(FLAKE8) . --exclude=$(EXCLUDE)
 	$(MYPY) . --exclude=venv --strict
 
-.PHONY: install run debug clean lint lint-strict
+.PHONY: install run debug clean fclean lint lint-strict

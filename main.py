@@ -50,6 +50,8 @@ def main() -> None:
         )
         arcade.run()
 
+    except KeyboardInterrupt:
+        print("\nKeyboard interrupted by user")
     except MemoryError:
         print("Error: not enough memory to run this simulation")
     except (ValueError, RuntimeError, OSError, OverflowError) as error:
